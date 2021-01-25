@@ -1,12 +1,12 @@
 use std::env;
 use std::process;
 
-use taskmaster::args::Args;
+use taskmaster::cli::Cli;
 use taskmaster::config::parse::parse;
 
 fn main() {
 	let env_args: Vec<String> = env::args().collect();
-	let args = Args::new(&env_args).unwrap_or_else(|err| {
+	let args = Cli::new(&env_args).unwrap_or_else(|err| {
 		println!("Problem parsing arguments: {}", err);
 		process::exit(1);
 	});

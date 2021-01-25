@@ -1,18 +1,18 @@
 use std::fmt::Debug;
 
 #[derive(Debug)]
-pub struct Args {
+pub struct Cli {
 	pub filename: String,
 }
 
-impl Args {
-	pub fn new(args: &[String]) -> Result<Args, &'static str> {
+impl Cli {
+	pub fn new(args: &[String]) -> Result<Cli, &'static str> {
 		if args.len() < 2 {
 			return Err("Nope");
 		}
 
 		let filename = args[1].clone();
 
-		Ok(Args { filename })
+		Ok(Cli { filename })
 	}
 }
