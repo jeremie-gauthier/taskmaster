@@ -7,8 +7,8 @@ pub struct Cli {
 
 impl Cli {
 	pub fn new(args: &[String]) -> Result<Cli, &'static str> {
-		if args.len() < 2 {
-			return Err("Nope");
+		if args.len() != 2 {
+			return Err("Print usage here");
 		}
 
 		let filename = args[1].clone();

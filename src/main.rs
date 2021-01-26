@@ -7,12 +7,12 @@ use taskmaster::config::parse::parse;
 fn main() {
 	let env_args: Vec<String> = env::args().collect();
 	let args = Cli::new(&env_args).unwrap_or_else(|err| {
-		println!("Problem parsing arguments: {}", err);
+		eprintln!("Problem parsing arguments: {}", err);
 		process::exit(1);
 	});
 	println!("{:?}", args);
 	parse(args).unwrap_or_else(|err| {
-		println!("Problem while opening file: {}", err);
+		eprintln!("Problem while opening file: {}", err);
 		process::exit(1);
 	});
 }
