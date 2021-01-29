@@ -2,17 +2,17 @@ use std::env;
 use std::process;
 
 use taskmaster::cli::Cli;
-use taskmaster::config::parse::parse;
+use taskmaster::config::config::Config;
 
 fn main() {
-	let env_args: Vec<String> = env::args().collect();
-	let args = Cli::new(&env_args).unwrap_or_else(|err| {
+	let args = Cli::new(env::args()).unwrap_or_else(|err| {
 		eprintln!("Problem parsing arguments: {}", err);
 		process::exit(1);
 	});
 	println!("{:?}", args);
-	parse(args).unwrap_or_else(|err| {
-		eprintln!("Problem while opening file: {}", err);
+	let config = Config::new(&args.filename).unwrap_or_else(|err| {
+		eprintln!("Problem parsing config file: {}", err);
 		process::exit(1);
 	});
+	println!("CONFIG {:?}", config);
 }

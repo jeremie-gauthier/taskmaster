@@ -1,4 +1,5 @@
 use crate::cli::Cli;
+use std::collections::HashMap;
 use std::error::Error;
 use std::fs;
 use std::process::{Command, Stdio};
@@ -13,13 +14,29 @@ pub fn parse(args: Cli) -> Result<(), Box<dyn Error>> {
 	println!("\n{:?}\n", attr.modified());
 
 	let yaml = YamlLoader::load_from_str(&contents).unwrap();
+	println!("{:?}", yaml);
 	let program = &yaml[0]["program"];
-	let command = program["command"].as_str().unwrap();
 
-	println!("With text:\n{:?}", command);
+	// let xxx = program.clone().into_iter().map();
+	// println!(">>> {:?}", xxx);
+	// let xxx = YamlLoader::load_from_str(program.as_str().unwrap());
+	// let xxx = YamlLoader::load_from_str(&contents).unwrap()[0].clone()
+	// 	.into_iter()
+	// 	.map(|pgr| {
+	// 		println!(">>> {:?}", pgr);
+	// 		pgr
+	// 	})
+	// 	.collect::<Vec<_>>();
+	// println!(">>> | {:?}", xxx);
+	// println!("{:?}\n", );
+	// let foo = "hello";
+	// let program = yaml[0]["program"].clone();
+	let foo = program[0]["command"].as_str().unwrap();
+
+	println!("With text:\n{:?}", foo);
 
 	// exec command with status()
-	let mut list_dir = Command::new(command);
+	let mut list_dir = Command::new(foo);
 	// set stdout to /dev/null to silent process' output
 	// don't forget to redirect stderr too
 	list_dir.stdout(Stdio::null());

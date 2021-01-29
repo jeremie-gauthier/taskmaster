@@ -1,3 +1,4 @@
+use std::env;
 use std::fmt::Debug;
 
 #[derive(Debug)]
@@ -6,12 +7,13 @@ pub struct Cli {
 }
 
 impl Cli {
-	pub fn new(args: &[String]) -> Result<Cli, &'static str> {
-		if args.len() != 2 {
-			return Err("Print usage here");
-		}
+	pub fn new(mut args: env::Args) -> Result<Cli, &'static str> {
+		args.next();
 
-		let filename = args[1].clone();
+		let filename = match args.next() {
+			Some(arg) => arg,
+			None => return Err("Print usage here"),
+		};
 
 		Ok(Cli { filename })
 	}

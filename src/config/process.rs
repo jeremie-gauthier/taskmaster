@@ -1,23 +1,29 @@
 use std::process::{Child, Command, Stdio};
 
+#[derive(Debug)]
 pub enum ProcessStatus {
 	EXITED,
 	STOPPED,
 	RUNNING,
 }
 
+#[derive(Debug)]
 pub struct Process {
+	name: String,
 	command: Command,
 	handle: Option<Child>,
 	status: ProcessStatus,
+	should_reload: bool,
 }
 
 impl Process {
-	pub fn new(command: &str) -> Self {
+	pub fn new(name: &str, command: &str) -> Self {
 		Process {
+			name: name.to_string(),
 			command: Command::new(command),
 			handle: None,
 			status: ProcessStatus::STOPPED,
+			should_reload: false,
 		}
 	}
 

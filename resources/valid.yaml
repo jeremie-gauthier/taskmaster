@@ -1,5 +1,7 @@
 ---
+log_file: ./logs
 program:
-  name: foo
+- name: foo
   command: /bin/ls
-...
+- name: bar
+  command: /bin/cat
