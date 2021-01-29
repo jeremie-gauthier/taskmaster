@@ -42,4 +42,12 @@ impl Config {
 			processes,
 		})
 	}
+
+	pub fn process(&self, process_name: &str) -> Option<&Process> {
+		self.processes.get(process_name)
+	}
+
+	pub fn process_mut(&mut self, process_name: &str) -> Option<&mut Process> {
+		self.processes.get_mut(process_name)
+	}
 }

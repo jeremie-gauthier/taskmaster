@@ -2,6 +2,4 @@
   "editor.defaultFormatter": "rust-lang.rust",
   "editor.tabSize": 4,
   "editor.insertSpaces": false,
-  "editor.wordWrap": "wordWrapColumn",
-  "editor.wordWrapColumn": 80
 }

@@ -2,9 +2,9 @@ use std::process::{Child, Command, Stdio};
 
 #[derive(Debug)]
 pub enum ProcessStatus {
-	EXITED,
-	STOPPED,
-	RUNNING,
+	Exited,
+	Stopped,
+	Running,
 }
 
 #[derive(Debug)]
@@ -22,7 +22,7 @@ impl Process {
 			name: name.to_string(),
 			command: Command::new(command),
 			handle: None,
-			status: ProcessStatus::STOPPED,
+			status: ProcessStatus::Stopped,
 			should_reload: false,
 		}
 	}
@@ -34,12 +34,12 @@ impl Process {
 			.stderr(Stdio::null());
 		self.handle = match self.command.spawn() {
 			Ok(handle) => {
-				self.status = ProcessStatus::RUNNING;
+				self.status = ProcessStatus::Running;
 				Some(handle)
 			}
 			Err(err) => {
-				self.status = ProcessStatus::EXITED;
-				eprintln!("An error occured while starting the process {}", err);
+				self.status = ProcessStatus::Exited;
+				eprintln!("An error occured while Stopped the process {}", err);
 				None
 			}
 		};
