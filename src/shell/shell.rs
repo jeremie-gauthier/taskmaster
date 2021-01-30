@@ -13,8 +13,6 @@ pub fn shell(config: Config) -> Result<(), Box<dyn Error>> {
 		let mut input = String::new();
 		stdin().read_line(&mut input)?;
 
-		println!("{}", input);
-
 		command.parse(&input);
 	}
 }

@@ -24,7 +24,6 @@ impl Command {
 
 	pub fn parse(&mut self, input: &str) -> Result<(), Box<dyn Error>> {
 		let mut tokens = input.split_ascii_whitespace();
-		println!("SPLIT: {:?}", tokens);
 
 		let cmd = match tokens.next() {
 			Some(cmd) => match_input_with_cmd(cmd),
