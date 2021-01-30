@@ -10,12 +10,12 @@ fn main() {
 		eprintln!("Problem parsing arguments: {}", err);
 		process::exit(1);
 	});
-	println!("{:?}", args);
+	// println!("{:?}", args);
 	let config = Config::new(&args.filename).unwrap_or_else(|err| {
 		eprintln!("Problem parsing config file: {}", err);
 		process::exit(1);
 	});
-	println!("CONFIG {:?}\n", config);
+	// println!("CONFIG {:?}\n", config);
 
 	shell(config).unwrap_or_else(|err| {
 		eprintln!("Problem starting the shell: {}", err);

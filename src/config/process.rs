@@ -32,17 +32,23 @@ impl Process {
 			.stdin(Stdio::null())
 			.stdout(Stdio::null())
 			.stderr(Stdio::null());
-		self.handle = match self.command.spawn() {
-			Ok(handle) => {
-				self.status = ProcessStatus::Running;
-				Some(handle)
+		match self.handle {
+			Some(_) => println!("{}: ERROR (already started)", self.name),
+			None => {
+				self.handle = match self.command.spawn() {
+					Ok(handle) => {
+						self.status = ProcessStatus::Running;
+						eprintln!("{}: started", self.name);
+						Some(handle)
+					}
+					Err(err) => {
+						self.status = ProcessStatus::Exited;
+						eprintln!("An error occured while spawning the process {}", err);
+						None
+					}
+				}
 			}
-			Err(err) => {
-				self.status = ProcessStatus::Exited;
-				eprintln!("An error occured while Stopped the process {}", err);
-				None
-			}
-		};
+		}
 	}
 
 	pub fn stop(&mut self) {
@@ -52,10 +58,14 @@ impl Process {
 			.stderr(Stdio::null());
 		match self.handle.as_mut() {
 			Some(handle) => match handle.kill() {
-				Ok(handle) => println!("Process {:?} exited successfully", handle),
+				Ok(_) => {
+					self.handle = None;
+					self.status = ProcessStatus::Stopped;
+					println!("{}: stopped", self.name);
+				}
 				Err(err) => eprintln!("An error occured while exiting the process {}", err),
 			},
-			None => eprintln!("This process has already exited"),
+			None => eprintln!("{}: ERROR (not running)", self.name),
 		}
 	}
 }

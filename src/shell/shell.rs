@@ -13,6 +13,9 @@ pub fn shell(config: Config) -> Result<(), Box<dyn Error>> {
 		let mut input = String::new();
 		stdin().read_line(&mut input)?;
 
-		command.parse(&input);
+		match command.parse(&input) {
+			Ok(_) => (),
+			Err(err) => eprintln!("{}", err),
+		};
 	}
 }
