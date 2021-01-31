@@ -1,6 +1,6 @@
 use std::process::{Child, Command, Stdio};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ProcessStatus {
 	Backoff,
 	Exited,
@@ -37,6 +37,10 @@ impl Process {
 			ProcessStatus::Running => "RUNNING",
 			ProcessStatus::Stopped => "STOPPED",
 		})
+	}
+
+	pub fn is_running(&self) -> bool {
+		self.status == ProcessStatus::Running
 	}
 
 	pub fn start(&mut self) {
