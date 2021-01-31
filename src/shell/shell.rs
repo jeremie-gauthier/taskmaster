@@ -1,21 +1,39 @@
-use crate::shell::command::Command;
+use crate::shell::command::utils::dispatch;
 use crate::Config;
 use std::error::Error;
 use std::io::{stdin, stdout, Write};
 
-pub fn shell(config: Config) -> Result<(), Box<dyn Error>> {
-	let mut command = Command::new(config);
+#[derive(Debug)]
+pub struct Shell {
+	history: Vec<String>,
+	config: Config,
+}
 
-	loop {
-		print!("taskmaster> ");
-		stdout().flush()?;
+impl Shell {
+	pub fn new(config: Config) -> Self {
+		Shell {
+			history: Vec::with_capacity(50),
+			config,
+		}
+	}
 
-		let mut input = String::new();
-		stdin().read_line(&mut input)?;
+	pub fn run(&mut self) -> Result<(), Box<dyn Error>> {
+		loop {
+			print!("taskmaster> ");
+			stdout().flush()?;
 
-		match command.parse(&input) {
-			Ok(_) => (),
-			Err(err) => eprintln!("{}", err),
-		};
+			let mut input = String::new();
+			stdin().read_line(&mut input)?;
+			self.add_to_history(&input);
+
+			match dispatch(&input, &mut self.config) {
+				Ok(_) => (),
+				Err(err) => eprintln!("{}", err),
+			};
+		}
+	}
+
+	fn add_to_history(&mut self, input: &str) {
+		self.history.insert(0, String::from(input))
 	}
 }

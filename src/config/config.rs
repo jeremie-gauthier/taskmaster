@@ -43,11 +43,17 @@ impl Config {
 		})
 	}
 
-	pub fn process(&self, process_name: &str) -> Option<&Process> {
-		self.processes.get(process_name)
+	pub fn process(&self, process_name: &str) -> Result<&Process, Box<dyn Error>> {
+		match self.processes.get(process_name) {
+			Some(process) => Ok(process),
+			None => Err(format!("{}: ERROR (no such process)", process_name))?,
+		}
 	}
 
-	pub fn process_mut(&mut self, process_name: &str) -> Option<&mut Process> {
-		self.processes.get_mut(process_name)
+	pub fn process_mut(&mut self, process_name: &str) -> Result<&mut Process, Box<dyn Error>> {
+		match self.processes.get_mut(process_name) {
+			Some(process) => Ok(process),
+			None => Err(format!("{}: ERROR (no such process)", process_name))?,
+		}
 	}
 }

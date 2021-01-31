@@ -8,4 +8,4 @@ pub use config::config::Config;
 pub use config::parse;
 
 pub mod shell;
-pub use shell::shell::shell;
+pub use shell::shell::Shell;

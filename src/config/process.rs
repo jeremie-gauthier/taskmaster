@@ -2,9 +2,11 @@ use std::process::{Child, Command, Stdio};
 
 #[derive(Debug)]
 pub enum ProcessStatus {
+	Backoff,
 	Exited,
-	Stopped,
+	Fatal,
 	Running,
+	Stopped,
 }
 
 #[derive(Debug)]
@@ -27,23 +29,33 @@ impl Process {
 		}
 	}
 
+	pub fn status(&self) -> String {
+		String::from(match self.status {
+			ProcessStatus::Backoff => "BACKOFF",
+			ProcessStatus::Exited => "EXITED",
+			ProcessStatus::Fatal => "FATAL",
+			ProcessStatus::Running => "RUNNING",
+			ProcessStatus::Stopped => "STOPPED",
+		})
+	}
+
 	pub fn start(&mut self) {
 		self.command
 			.stdin(Stdio::null())
 			.stdout(Stdio::null())
 			.stderr(Stdio::null());
 		match self.handle {
-			Some(_) => println!("{}: ERROR (already started)", self.name),
+			Some(_) => eprintln!("{}: ERROR (already started)", self.name),
 			None => {
 				self.handle = match self.command.spawn() {
 					Ok(handle) => {
 						self.status = ProcessStatus::Running;
-						eprintln!("{}: started", self.name);
+						println!("{}: started", self.name);
 						Some(handle)
 					}
-					Err(err) => {
-						self.status = ProcessStatus::Exited;
-						eprintln!("An error occured while spawning the process {}", err);
+					Err(_) => {
+						self.status = ProcessStatus::Fatal;
+						eprintln!("{}: ERROR (spawn error)", self.name);
 						None
 					}
 				}

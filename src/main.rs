@@ -1,9 +1,9 @@
 use std::env;
 use std::process;
 
-use taskmaster::shell;
 use taskmaster::Cli;
 use taskmaster::Config;
+use taskmaster::Shell;
 
 fn main() {
 	let args = Cli::new(env::args()).unwrap_or_else(|err| {
@@ -17,7 +17,7 @@ fn main() {
 	});
 	// println!("CONFIG {:?}\n", config);
 
-	shell(config).unwrap_or_else(|err| {
+	Shell::new(config).run().unwrap_or_else(|err| {
 		eprintln!("Problem starting the shell: {}", err);
 		process::exit(1);
 	});
