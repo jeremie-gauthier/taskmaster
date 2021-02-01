@@ -1,32 +1,41 @@
 use std::error::Error;
+use std::io::prelude::*;
 use std::io::{stdin, stdout, Write};
+use std::os::unix::net::UnixStream;
 
 #[derive(Debug)]
 pub struct Shell {
 	history: Vec<String>,
+	stream: UnixStream,
 }
 
 impl Shell {
-	pub fn new() -> Self {
+	pub fn new(stream: UnixStream) -> Self {
 		Shell {
 			history: Vec::with_capacity(50),
+			stream,
 		}
 	}
 
+	// UnixSocket example
+	// https://github.com/BartMassey/unix-stream/tree/master/src
 	pub fn run(&mut self) -> Result<(), Box<dyn Error>> {
 		loop {
 			print!("taskmaster> ");
 			stdout().flush()?;
 
-			let mut input = String::new();
-			stdin().read_line(&mut input)?;
+			let input = "message\n";
+			// let mut input = String::new();
+			// stdin().read_line(&mut input)?;
 			self.add_to_history(&input);
 
-			// send to daemon here
-			// match dispatch(&input, &mut self.config) {
-			// 	Ok(_) => (),
-			// 	Err(err) => eprintln!("{}", err),
-			// };
+			write!(self.stream, "{}", input)?;
+			self.stream.flush()?;
+			// self.stream.write_all(input.as_bytes())?;
+			// self.stream.flush()?;
+			let mut response = String::new();
+			self.stream.read_to_string(&mut response)?;
+			println!("server said: {}", response);
 		}
 	}
 
