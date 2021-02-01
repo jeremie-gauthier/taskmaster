@@ -9,3 +9,5 @@ pub use config::parse;
 
 pub mod shell;
 pub use shell::shell::Shell;
+
+pub static SOCKET_PATH: &'static str = "/tmp/taskmaster.sock";
