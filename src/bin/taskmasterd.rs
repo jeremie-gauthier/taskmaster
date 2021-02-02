@@ -1,5 +1,6 @@
 use std::io::prelude::*;
 use std::os::unix::net::UnixListener;
+use std::sync::{Arc, Mutex};
 use std::{env, process, thread};
 
 use taskmaster::Cli;
@@ -18,47 +19,37 @@ fn main() {
 	});
 	// println!("CONFIG {:?}\n", config);
 
-	std::fs::remove_file(SOCKET_PATH).unwrap();
+	std::fs::remove_file(SOCKET_PATH);
 	let listener = UnixListener::bind(SOCKET_PATH).unwrap_or_else(|err| {
 		eprintln!("Problem binding socket: {}", err);
 		process::exit(1);
 	});
 
+	let connections_limit = Arc::new(Mutex::new(0));
+
 	for stream in listener.incoming() {
 		println!("??> {:?}", stream);
-		match stream {
-			Ok(mut stream) => {
-				/* connection succeeded */
-				thread::spawn(move || {
-					println!("Ready to read");
-					let mut input = String::new();
-					stream.read_to_string(&mut input).expect("read fails");
-					println!("client said: {}", input);
-					stream.write_all(b"Got it bro").expect("write fails");
-				});
-			}
-			Err(err) => {
-				eprintln!("ERROR incoming stream: {}", err);
-				break;
-			}
+		if *connections_limit.lock().unwrap() >= 3 {
+			eprintln!("Too many threads running");
+			continue;
 		}
+		let connections_limit = Arc::clone(&connections_limit);
+
+		thread::spawn(move || {
+			*connections_limit.lock().unwrap() += 1;
+			println!("START: {}", *connections_limit.lock().unwrap());
+			let mut stream = stream.unwrap();
+			let reader = stream.try_clone().unwrap();
+			let reader = std::io::BufReader::new(reader);
+			for input in reader.lines() {
+				let input = input.unwrap();
+				println!("client said: {}", input);
+				writeln!(stream, "{}", input).unwrap();
+				stream.flush().unwrap();
+				eprintln!("daemon: responded");
+			}
+			*connections_limit.lock().unwrap() -= 1;
+			println!("END: {}", *connections_limit.lock().unwrap());
+		});
 	}
-	// match listener.accept() {
-	// 	Ok((mut socket, addr)) => {
-	// 		println!("Got a client: {:?} - {:?}", socket, addr);
-	// socket
-	// 	.write_all(b"hello from daemon")
-	// 	.unwrap_or_else(|err| {
-	// 		eprintln!("Problem writing msg: {}", err);
-	// 		process::exit(1);
-	// 	});
-	// 		// let mut response = String::new();
-	// 		// socket.read_to_string(&mut response).unwrap_or_else(|err| {
-	// 		// 	eprintln!("Problem reading msg: {}", err);
-	// 		// 	process::exit(1);
-	// 		// });
-	// 		// println!("client says: {}", response);
-	// 	}
-	// 	Err(e) => println!("accept function failed: {:?}", e),
-	// }
 }

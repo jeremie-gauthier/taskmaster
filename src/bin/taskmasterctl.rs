@@ -25,7 +25,7 @@ fn main() {
 	// println!("Server says: {}", response);
 
 	Shell::new(stream).run().unwrap_or_else(|err| {
-		eprintln!("Problem starting the shell: {}", err);
+		eprintln!("Problem from the shell: {}", err);
 		process::exit(1);
 	});
 }
