@@ -2,6 +2,7 @@ use crate::shell::command::utils::Command;
 use crate::Config;
 use std::error::Error;
 use std::str::SplitAsciiWhitespace;
+use std::sync::{Arc, Mutex};
 
 const START_USAGE: &'static str =
 	"start <name>\t\tStart a process\nstart all\t\tStart all processes";
@@ -36,9 +37,13 @@ impl<'a> Command for Start<'a> {
 		}
 	}
 
-	fn exec(&mut self) -> Result<(), Box<dyn Error>> {
+	fn exec(&mut self) -> Result<String, Box<dyn Error>> {
 		match self.process_name {
-			Some(name) => Ok(self.config.process_mut(name)?.start()),
+			Some(name) => {
+				// let mut config = *self.config.lock().unwrap();
+				// Ok(config.process_mut(name)?.start())
+				Ok(self.config.process_mut(name)?.start())
+			}
 			None => Err(format!(
 				"Error: start requires a process name\n{}",
 				START_USAGE

@@ -1,3 +1,4 @@
+extern crate crossbeam;
 extern crate yaml_rust;
 
 pub mod cli;
@@ -9,5 +10,8 @@ pub use config::parse;
 
 pub mod shell;
 pub use shell::shell::Shell;
+
+pub mod daemon;
+pub use daemon::Daemon;
 
 pub static SOCKET_PATH: &'static str = "/tmp/taskmaster.sock";

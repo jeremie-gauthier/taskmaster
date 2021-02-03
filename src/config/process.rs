@@ -39,25 +39,29 @@ impl Process {
 		})
 	}
 
-	pub fn start(&mut self) {
+	pub fn start(&mut self) -> String {
 		self.command
 			.stdin(Stdio::null())
 			.stdout(Stdio::null())
 			.stderr(Stdio::null());
 		match self.handle {
-			Some(_) => eprintln!("{}: ERROR (already started)", self.name),
+			Some(_) => return format!("{}: ERROR (already started)", self.name),
 			None => {
 				self.handle = match self.command.spawn() {
 					Ok(handle) => {
 						self.status = ProcessStatus::Running;
-						println!("{}: started", self.name);
 						Some(handle)
 					}
 					Err(_) => {
 						self.status = ProcessStatus::Fatal;
-						eprintln!("{}: ERROR (spawn error)", self.name);
 						None
 					}
+				};
+
+				if self.handle.is_some() {
+					return format!("{}: started", self.name);
+				} else {
+					return format!("{}: ERROR (spawn error)", self.name);
 				}
 			}
 		}

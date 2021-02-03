@@ -7,7 +7,7 @@ use yaml_rust::YamlLoader;
 
 #[derive(Debug)]
 pub struct Config {
-	pub log_file: fs::File,
+	pub log_file: File,
 	processes: HashMap<String, Process>,
 }
 
