@@ -24,14 +24,11 @@ impl Shell {
 			Err(err) => return Err(err)?,
 		};
 
-		let mut response_utf8 = Vec::new();
-		reader.read_until(OUTPUT_DELIMITER as u8, &mut response_utf8)?;
-		response_utf8.pop();
-		let response_str = String::from_utf8(response_utf8)?;
-		if response_str.contains("Connection refused") {
-			return Err(response_str)?;
+		let response = self.read_socket_msg(&mut reader)?;
+		if response.contains("Connection refused") {
+			return Err(response)?;
 		} else {
-			println!("{}", response_str);
+			println!("{}", response);
 		}
 
 		loop {
@@ -45,15 +42,19 @@ impl Shell {
 			write!(self.stream, "{}", input)?;
 			self.stream.flush()?;
 
-			let mut response_utf8 = Vec::new();
-			reader.read_until(OUTPUT_DELIMITER as u8, &mut response_utf8)?;
-			response_utf8.pop();
-			let response_str = String::from_utf8(response_utf8)?;
-			println!("{}", response_str);
+			let response = self.read_socket_msg(&mut reader)?;
+			println!("{}", response);
 		}
 	}
 
 	fn add_to_history(&mut self, input: &str) {
 		self.history.insert(0, String::from(input))
+	}
+
+	fn read_socket_msg(&self, reader: &mut dyn BufRead) -> Result<String, Box<dyn Error>> {
+		let mut response_utf8 = Vec::new();
+		reader.read_until(OUTPUT_DELIMITER as u8, &mut response_utf8)?;
+		response_utf8.pop();
+		Ok(String::from_utf8(response_utf8)?)
 	}
 }
