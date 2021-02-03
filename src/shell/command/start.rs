@@ -2,7 +2,6 @@ use crate::shell::command::utils::Command;
 use crate::Config;
 use std::error::Error;
 use std::str::SplitAsciiWhitespace;
-use std::sync::{Arc, Mutex};
 
 const START_USAGE: &'static str =
 	"start <name>\t\tStart a process\nstart all\t\tStart all processes";

@@ -15,3 +15,4 @@ pub mod daemon;
 pub use daemon::Daemon;
 
 pub static SOCKET_PATH: &'static str = "/tmp/taskmaster.sock";
+pub static OUTPUT_DELIMITER: char = '#';
