@@ -62,7 +62,7 @@ impl Daemon {
 							}
 						};
 
-						writeln!(stream, "Welcome to taskmaster{}", OUTPUT_DELIMITER)
+						write!(stream, "Welcome to taskmaster{}", OUTPUT_DELIMITER)
 							.unwrap_or_default();
 						stream.flush().unwrap_or_default();
 
@@ -70,7 +70,7 @@ impl Daemon {
 							match input {
 								Ok(input) => {
 									let response = dispatch(&input, &config);
-									writeln!(stream, "{}{}", response, OUTPUT_DELIMITER)
+									write!(stream, "{}{}", response, OUTPUT_DELIMITER)
 										.unwrap_or_default();
 									stream.flush().unwrap_or_default();
 								}
