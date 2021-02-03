@@ -28,6 +28,7 @@ impl Shell {
 		if response.contains("Connection refused") {
 			return Err(response)?;
 		} else {
+			// get process statuses
 			println!("{}", response);
 		}
 
