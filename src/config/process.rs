@@ -67,7 +67,7 @@ impl Process {
 		}
 	}
 
-	pub fn stop(&mut self) {
+	pub fn stop(&mut self) -> String {
 		self.command
 			.stdin(Stdio::null())
 			.stdout(Stdio::null())
@@ -77,11 +77,11 @@ impl Process {
 				Ok(_) => {
 					self.handle = None;
 					self.status = ProcessStatus::Stopped;
-					println!("{}: stopped", self.name);
+					format!("{}: stopped", self.name)
 				}
-				Err(err) => eprintln!("An error occured while exiting the process {}", err),
+				Err(err) => format!("An error occured while exiting the process {}", err),
 			},
-			None => eprintln!("{}: ERROR (not running)", self.name),
+			None => format!("{}: ERROR (not running)", self.name),
 		}
 	}
 }
