@@ -38,11 +38,7 @@ impl<'a> Command for Start<'a> {
 
 	fn exec(&mut self) -> Result<String, Box<dyn Error>> {
 		match self.process_name {
-			Some(name) => {
-				// let mut config = *self.config.lock().unwrap();
-				// Ok(config.process_mut(name)?.start())
-				Ok(self.config.process_mut(name)?.start())
-			}
+			Some(name) => Ok(self.config.process_mut(name)?.start()),
 			None => Err(format!(
 				"Error: start requires a process name\n{}",
 				START_USAGE
