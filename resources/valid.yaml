@@ -4,3 +4,4 @@ programs:
     cmd: /bin/ls
   bar:
     cmd: /bin/cat
+    autostart: true

@@ -1,4 +1,5 @@
 use super::process::Process;
+use crate::config::parameters::Parameters;
 use std::collections::hash_map::IterMut;
 use std::collections::HashMap;
 use std::error::Error;
@@ -27,8 +28,8 @@ impl Config {
 				HashMap::new(),
 				|mut hm, (program_name, program_config)| {
 					if let Some(name) = program_name.as_str() {
-						let command = program_config["cmd"].as_str().unwrap_or_default();
-						hm.insert(name.to_string(), Process::new(name, command));
+						let parameters = Parameters::new(program_config);
+						hm.insert(name.to_string(), Process::new(name, parameters));
 					} else {
 						eprintln!("[-] Malformated program name. Skipping.");
 					}
@@ -43,17 +44,6 @@ impl Config {
 			Some(value) => File::create(value)?,
 			None => File::create("./logs")?,
 		};
-
-		let processes =
-			doc["program"]
-				.clone()
-				.into_iter()
-				.fold(HashMap::new(), |mut hm, process| {
-					let name = process["name"].as_str().unwrap();
-					let command = process["command"].as_str().unwrap();
-					hm.insert(name.to_string(), Process::new(name, command));
-					hm
-				});
 
 		Ok(Config {
 			log_file,
