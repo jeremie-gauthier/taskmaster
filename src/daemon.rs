@@ -32,7 +32,10 @@ impl Daemon {
 		let connections_counter = Arc::new(Mutex::new(0));
 		let acquire_counter = || match connections_counter.lock() {
 			Ok(counter) => counter,
-			Err(_) => process::exit(1),
+			Err(err) => {
+				eprintln!("Mutex Error {}", err);
+				process::exit(1);
+			}
 		};
 		let can_connect = || *acquire_counter() < self.connections_limit;
 		let connect = || *acquire_counter() += 1;
