@@ -1,4 +1,5 @@
 use super::process::Process;
+use std::collections::hash_map::IterMut;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fs::File;
@@ -71,5 +72,9 @@ impl Config {
 			Some(process) => Ok(process),
 			None => Err(format!("{}: ERROR (no such process)", process_name))?,
 		}
+	}
+
+	pub fn processes_mut(&mut self) -> Result<IterMut<String, Process>, Box<dyn Error>> {
+		Ok(self.processes.iter_mut())
 	}
 }
