@@ -29,6 +29,7 @@ impl Daemon {
 	pub fn listen(&mut self, path: &str) -> Result<(), Box<dyn Error>> {
 		clear_unix_socket(&path);
 		let listener = UnixListener::bind(&path)?;
+		println!("[*] Daemon is ready and listening on {}", path);
 		let connections_counter = Arc::new(Mutex::new(0));
 		let acquire_counter = || match connections_counter.lock() {
 			Ok(counter) => counter,
