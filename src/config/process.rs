@@ -45,7 +45,7 @@ impl Process {
 			.stdout(Stdio::null())
 			.stderr(Stdio::null());
 		match self.handle {
-			Some(_) => return format!("{}: ERROR (already started)", self.name),
+			Some(_) => format!("{}: ERROR (already started)", self.name),
 			None => {
 				self.handle = match self.command.spawn() {
 					Ok(handle) => {
@@ -59,9 +59,9 @@ impl Process {
 				};
 
 				if self.handle.is_some() {
-					return format!("{}: started", self.name);
+					format!("{}: started", self.name)
 				} else {
-					return format!("{}: ERROR (spawn error)", self.name);
+					format!("{}: ERROR (spawn error)", self.name)
 				}
 			}
 		}
