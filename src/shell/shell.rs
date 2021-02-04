@@ -29,7 +29,7 @@ impl Shell {
 			return Err(response)?;
 		} else {
 			// get process statuses
-			println!("{}", response);
+			print!("{}", response);
 		}
 
 		loop {
@@ -44,7 +44,7 @@ impl Shell {
 			self.stream.flush()?;
 
 			let response = self.read_socket_msg(&mut reader)?;
-			println!("{}", response);
+			print!("{}", response);
 		}
 	}
 

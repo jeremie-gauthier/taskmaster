@@ -66,7 +66,7 @@ impl Daemon {
 							}
 						};
 
-						write!(stream, "Welcome to taskmaster{}", OUTPUT_DELIMITER)
+						write!(stream, "Welcome to taskmaster\n{}", OUTPUT_DELIMITER)
 							.unwrap_or_default();
 						stream.flush().unwrap_or_default();
 
@@ -74,7 +74,7 @@ impl Daemon {
 							match input {
 								Ok(input) => {
 									let response = dispatch(&input, &config);
-									write!(stream, "{}{}", response, OUTPUT_DELIMITER)
+									write!(stream, "{}\n{}", response, OUTPUT_DELIMITER)
 										.unwrap_or_default();
 									stream.flush().unwrap_or_default();
 								}
@@ -85,10 +85,10 @@ impl Daemon {
 					});
 				} else {
 					eprintln!("Connection refused: Threads' limit reached");
-					writeln!(
+					write!(
 						stream,
 						"Connection refused: Threads' limit reached\n \
-						Increase the limit in your configuration file or shutdown a client{}",
+						Increase the limit in your configuration file or shutdown a client\n{}",
 						OUTPUT_DELIMITER
 					)
 					.unwrap_or_default();

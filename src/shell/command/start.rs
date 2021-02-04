@@ -41,11 +41,16 @@ impl<'a> Command for Start<'a> {
 			Some(name) => match name {
 				"all" => Ok({
 					let iter = self.config.processes_mut()?;
-					iter.for_each(|(_, process)| {
+					let mut result = iter.fold(String::new(), |mut acc, (_, process)| {
 						if !process.is_running() {
-							process.start();
+							let response = process.start();
+							acc.push_str(&response);
+							acc.push('\n');
 						}
-					})
+						acc
+					});
+					result.pop();
+					result
 				}),
 				_ => Ok(self.config.process_mut(name)?.start()),
 			},
