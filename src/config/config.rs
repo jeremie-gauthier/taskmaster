@@ -1,10 +1,9 @@
 use super::process::Process;
 use std::collections::HashMap;
 use std::error::Error;
-use std::fs;
 use std::fs::File;
+use std::{fs, process};
 use yaml_rust::YamlLoader;
-
 #[derive(Debug)]
 pub struct Config {
 	pub log_file: File,
@@ -20,6 +19,23 @@ impl Config {
 		let config_content = fs::read_to_string(config_filename)?;
 		let docs = YamlLoader::load_from_str(&config_content)?;
 		let doc = &docs[0];
+
+		let processes: HashMap<String, Process> = match &doc["programs"].as_hash() {
+			Some(programs) => programs.into_iter().fold(
+				HashMap::new(),
+				|mut hm, (program_name, program_config)| {
+					if let Some(name) = program_name.as_str() {
+						let command = program_config["cmd"].as_str().unwrap_or_default();
+						hm.insert(name.to_string(), Process::new(name, command));
+					} else {
+						eprintln!("[-] Malformated program name. Skipping.");
+					}
+					hm
+				},
+			),
+			None => HashMap::new(),
+		};
+		println!("{:?}", processes);
 
 		let log_file = match &doc["log_file"].as_str() {
 			Some(value) => File::create(value)?,

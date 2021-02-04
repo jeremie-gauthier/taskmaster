@@ -1,7 +1,6 @@
----
 log_file: ./logs
-program:
-- name: foo
-  command: /bin/ls
-- name: bar
-  command: /bin/cat
+programs:
+  foo:
+    cmd: /bin/ls
+  bar:
+    cmd: /bin/cat
