@@ -36,7 +36,7 @@ impl<'a> Command for Start<'a> {
 		}
 	}
 
-	fn exec(&mut self) -> Result<(), Box<dyn Error>> {
+	fn exec(&mut self) -> Result<String, Box<dyn Error>> {
 		match self.process_name {
 			Some(name) => match name {
 				"all" => Ok({
