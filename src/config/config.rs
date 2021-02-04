@@ -2,9 +2,10 @@ use super::process::Process;
 use std::collections::hash_map::IterMut;
 use std::collections::HashMap;
 use std::error::Error;
+use std::fs;
 use std::fs::File;
-use std::{fs, process};
 use yaml_rust::YamlLoader;
+
 #[derive(Debug)]
 pub struct Config {
 	pub log_file: File,
