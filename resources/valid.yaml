@@ -2,6 +2,7 @@ log_file: ./logs
 programs:
   foo:
     cmd: /bin/ls
+    stdout: /tmp/taskmaster.foo.stdout
   bar:
     cmd: /bin/cat
     autostart: true

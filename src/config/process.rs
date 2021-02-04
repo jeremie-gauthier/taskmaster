@@ -50,10 +50,12 @@ impl Process {
 	}
 
 	pub fn start(&mut self) -> String {
+		let stdout = Parameters::open_or_create(&self.parameters.stdout).unwrap();
+
 		self.parameters
 			.command
 			.stdin(Stdio::null())
-			.stdout(Stdio::null())
+			.stdout(stdout)
 			.stderr(Stdio::null());
 		match self.handle {
 			Some(_) => format!("{}: ERROR (already started)", self.name),
