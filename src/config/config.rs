@@ -1,4 +1,5 @@
 use super::process::Process;
+use crate::config::parameters::Parameters;
 use std::collections::hash_map::IterMut;
 use std::collections::HashMap;
 use std::error::Error;
@@ -22,21 +23,27 @@ impl Config {
 		let docs = YamlLoader::load_from_str(&config_content)?;
 		let doc = &docs[0];
 
+		let processes: HashMap<String, Process> = match &doc["programs"].as_hash() {
+			Some(programs) => programs.into_iter().fold(
+				HashMap::new(),
+				|mut hm, (program_name, program_config)| {
+					if let Some(name) = program_name.as_str() {
+						let parameters = Parameters::new(program_config);
+						hm.insert(name.to_string(), Process::new(name, parameters));
+					} else {
+						eprintln!("[-] Malformated program name. Skipping.");
+					}
+					hm
+				},
+			),
+			None => HashMap::new(),
+		};
+		println!("{:?}", processes);
+
 		let log_file = match &doc["log_file"].as_str() {
 			Some(value) => File::create(value)?,
 			None => File::create("./logs")?,
 		};
-
-		let processes =
-			doc["program"]
-				.clone()
-				.into_iter()
-				.fold(HashMap::new(), |mut hm, process| {
-					let name = process["name"].as_str().unwrap();
-					let command = process["command"].as_str().unwrap();
-					hm.insert(name.to_string(), Process::new(name, command));
-					hm
-				});
 
 		Ok(Config {
 			log_file,

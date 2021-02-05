@@ -1,7 +1,8 @@
----
 log_file: ./logs
-program:
-- name: foo
-  command: /bin/ls
-- name: bar
-  command: /bin/cat
+programs:
+  foo:
+    cmd: /bin/ls
+    stdout: /tmp/taskmaster.foo.stdout
+  bar:
+    cmd: /bin/cat
+    autostart: true

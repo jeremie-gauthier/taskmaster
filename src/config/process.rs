@@ -1,4 +1,5 @@
-use std::process::{Child, Command, Stdio};
+use crate::config::parameters::Parameters;
+use std::process::Child;
 
 #[derive(Debug, PartialEq)]
 pub enum ProcessStatus {
@@ -12,21 +13,26 @@ pub enum ProcessStatus {
 #[derive(Debug)]
 pub struct Process {
 	name: String,
-	command: Command,
+	parameters: Parameters,
 	handle: Option<Child>,
 	status: ProcessStatus,
 	should_reload: bool,
 }
 
 impl Process {
-	pub fn new(name: &str, command: &str) -> Self {
-		Process {
+	pub fn new(name: &str, parameters: Parameters) -> Self {
+		let mut process = Process {
 			name: name.to_string(),
-			command: Command::new(command),
+			parameters,
 			handle: None,
 			status: ProcessStatus::Stopped,
 			should_reload: false,
+		};
+
+		if process.parameters.autostart {
+			process.start();
 		}
+		process
 	}
 
 	pub fn status(&self) -> String {
@@ -44,38 +50,35 @@ impl Process {
 	}
 
 	pub fn start(&mut self) -> String {
-		self.command
-			.stdin(Stdio::null())
-			.stdout(Stdio::null())
-			.stderr(Stdio::null());
+		let stdout = Parameters::open_or_create(&self.parameters.stdout).unwrap();
+		let stderr = Parameters::open_or_create(&self.parameters.stderr).unwrap();
+
+		self.parameters.command.stdout(stdout).stderr(stderr);
 		match self.handle {
-			Some(_) => return format!("{}: ERROR (already started)", self.name),
+			Some(_) => format!("{}: ERROR (already started)", self.name),
 			None => {
-				self.handle = match self.command.spawn() {
+				self.handle = match self.parameters.command.spawn() {
 					Ok(handle) => {
 						self.status = ProcessStatus::Running;
 						Some(handle)
 					}
-					Err(_) => {
+					Err(err) => {
+						eprintln!("{}", err);
 						self.status = ProcessStatus::Fatal;
 						None
 					}
 				};
 
 				if self.handle.is_some() {
-					return format!("{}: started", self.name);
+					format!("{}: started", self.name)
 				} else {
-					return format!("{}: ERROR (spawn error)", self.name);
+					format!("{}: ERROR (spawn error)", self.name)
 				}
 			}
 		}
 	}
 
 	pub fn stop(&mut self) -> String {
-		self.command
-			.stdin(Stdio::null())
-			.stdout(Stdio::null())
-			.stderr(Stdio::null());
 		match self.handle.as_mut() {
 			Some(handle) => match handle.kill() {
 				Ok(_) => {
