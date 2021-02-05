@@ -53,10 +53,6 @@ impl Process {
 	}
 
 	pub fn start(&mut self) -> Result<String, Box<dyn Error>> {
-		let stdout = Parameters::open_or_create(&self.parameters.stdout).unwrap();
-		let stderr = Parameters::open_or_create(&self.parameters.stderr).unwrap();
-
-		self.parameters.command.stdout(stdout).stderr(stderr);
 		match self.handle {
 			Some(_) => Err(format!("{}: ERROR (already started)", self.name))?,
 			None => match self.parameters.command.spawn() {

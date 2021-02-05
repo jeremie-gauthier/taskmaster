@@ -13,21 +13,37 @@ pub struct Parameters {
 
 impl Parameters {
 	pub fn new(yaml_params: &Yaml) -> Self {
-		let command = Command::new(yaml_params["cmd"].as_str().unwrap_or_default());
+		let command = Parameters::create_command(yaml_params["cmd"].as_str().unwrap_or_default());
 		let autostart = yaml_params["autostart"].as_bool().unwrap_or_default();
 		let stdout = String::from(yaml_params["stdout"].as_str().unwrap_or("/dev/null"));
 		let stderr = String::from(yaml_params["stderr"].as_str().unwrap_or("/dev/null"));
 
-		Parameters {
+		let mut parameters = Parameters {
 			command,
 			autostart,
 			stdout,
 			stderr,
-		}
+		};
+
+		parameters.apply_redirection();
+		parameters
 	}
 }
 
 impl Parameters {
+	fn create_command(input: &str) -> Command {
+		let mut command = Command::new("/bin/bash");
+		command.arg("-c").arg(input);
+		command
+	}
+
+	fn apply_redirection(&mut self) {
+		let stdout = Parameters::open_or_create(&self.stdout).unwrap();
+		let stderr = Parameters::open_or_create(&self.stderr).unwrap();
+
+		self.command.stdout(stdout).stderr(stderr);
+	}
+
 	pub fn open_or_create(path: &str) -> Result<Stdio, Box<dyn Error>> {
 		Ok(Stdio::from(
 			OpenOptions::new()
