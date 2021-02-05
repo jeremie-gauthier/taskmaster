@@ -1,4 +1,5 @@
 use crate::config::parameters::Parameters;
+use std::error::Error;
 use std::process::Child;
 
 #[derive(Debug, PartialEq)]
@@ -30,7 +31,9 @@ impl Process {
 		};
 
 		if process.parameters.autostart {
-			process.start();
+			if process.start().is_err() {
+				eprintln!("Autostart failed");
+			};
 		}
 		process
 	}
@@ -49,32 +52,26 @@ impl Process {
 		self.status == ProcessStatus::Running
 	}
 
-	pub fn start(&mut self) -> String {
+	pub fn start(&mut self) -> Result<String, Box<dyn Error>> {
 		let stdout = Parameters::open_or_create(&self.parameters.stdout).unwrap();
 		let stderr = Parameters::open_or_create(&self.parameters.stderr).unwrap();
 
 		self.parameters.command.stdout(stdout).stderr(stderr);
 		match self.handle {
-			Some(_) => format!("{}: ERROR (already started)", self.name),
-			None => {
-				self.handle = match self.parameters.command.spawn() {
-					Ok(handle) => {
-						self.status = ProcessStatus::Running;
-						Some(handle)
-					}
-					Err(err) => {
-						eprintln!("{}", err);
-						self.status = ProcessStatus::Fatal;
-						None
-					}
-				};
-
-				if self.handle.is_some() {
-					format!("{}: started", self.name)
-				} else {
-					format!("{}: ERROR (spawn error)", self.name)
+			Some(_) => Err(format!("{}: ERROR (already started)", self.name))?,
+			None => match self.parameters.command.spawn() {
+				Ok(handle) => {
+					self.handle = Some(handle);
+					self.status = ProcessStatus::Running;
+					Ok(format!("{}: started", self.name))
 				}
-			}
+				Err(err) => {
+					eprintln!("{}", err);
+					self.handle = None;
+					self.status = ProcessStatus::Fatal;
+					Err(format!("{}: ERROR (spawn error)", self.name))?
+				}
+			},
 		}
 	}
 
