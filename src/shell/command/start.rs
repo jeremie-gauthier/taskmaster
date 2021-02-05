@@ -28,8 +28,10 @@ impl<'a> Start<'a> {
 			let iter = self.config.processes_mut()?;
 			let mut result = iter.fold(String::new(), |mut acc, (_, process)| {
 				if !process.is_running() {
-					let response = process.start().unwrap_or_default();
-					acc.push_str(&response);
+					match process.start() {
+						Ok(response) => acc.push_str(&response),
+						Err(error) => acc.push_str(&error.to_string()),
+					}
 					acc.push('\n');
 				}
 				acc
@@ -74,8 +76,10 @@ impl<'a> Command for Start<'a> {
 		for name in self.process_names.as_ref().unwrap() {
 			match self.config.process_mut(name) {
 				Ok(process) => {
-					let response = process.start()?;
-					result.push_str(&response);
+					match process.start() {
+						Ok(response) => result.push_str(&response),
+						Err(error) => result.push_str(&error.to_string()),
+					};
 					result.push('\n');
 				}
 				Err(err) => {
