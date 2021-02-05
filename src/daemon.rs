@@ -73,8 +73,12 @@ impl Daemon {
 						for input in reader.lines() {
 							match input {
 								Ok(input) => {
+									let mut newline = "\n";
 									let response = dispatch(&input, &config);
-									write!(stream, "{}\n{}", response, OUTPUT_DELIMITER)
+									if response.is_empty() {
+										newline = "";
+									};
+									write!(stream, "{}{}{}", response, newline, OUTPUT_DELIMITER)
 										.unwrap_or_default();
 									stream.flush().unwrap_or_default();
 								}
