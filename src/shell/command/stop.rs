@@ -12,3 +12,5 @@ pub struct Stop<'a> {
 	process_names: Option<Vec<&'a str>>,
 	all_option: bool,
 }
+
+impl<'a> Stop<'a> {}
