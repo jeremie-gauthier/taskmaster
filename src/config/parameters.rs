@@ -8,6 +8,7 @@ pub struct Parameters {
 	pub command: Command,
 	pub autostart: bool,
 	pub stdout: String,
+	pub stderr: String,
 }
 
 impl Parameters {
@@ -15,11 +16,13 @@ impl Parameters {
 		let command = Command::new(yaml_params["cmd"].as_str().unwrap_or_default());
 		let autostart = yaml_params["autostart"].as_bool().unwrap_or_default();
 		let stdout = String::from(yaml_params["stdout"].as_str().unwrap_or("/dev/null"));
+		let stderr = String::from(yaml_params["stderr"].as_str().unwrap_or("/dev/null"));
 
 		Parameters {
 			command,
 			autostart,
 			stdout,
+			stderr,
 		}
 	}
 }

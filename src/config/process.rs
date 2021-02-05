@@ -1,5 +1,5 @@
 use crate::config::parameters::Parameters;
-use std::process::{Child, Stdio};
+use std::process::Child;
 
 #[derive(Debug, PartialEq)]
 pub enum ProcessStatus {
@@ -51,12 +51,9 @@ impl Process {
 
 	pub fn start(&mut self) -> String {
 		let stdout = Parameters::open_or_create(&self.parameters.stdout).unwrap();
+		let stderr = Parameters::open_or_create(&self.parameters.stderr).unwrap();
 
-		self.parameters
-			.command
-			.stdin(Stdio::null())
-			.stdout(stdout)
-			.stderr(Stdio::null());
+		self.parameters.command.stdout(stdout).stderr(stderr);
 		match self.handle {
 			Some(_) => format!("{}: ERROR (already started)", self.name),
 			None => {
@@ -65,7 +62,8 @@ impl Process {
 						self.status = ProcessStatus::Running;
 						Some(handle)
 					}
-					Err(_) => {
+					Err(err) => {
+						eprintln!("{}", err);
 						self.status = ProcessStatus::Fatal;
 						None
 					}
@@ -81,11 +79,6 @@ impl Process {
 	}
 
 	pub fn stop(&mut self) -> String {
-		self.parameters
-			.command
-			.stdin(Stdio::null())
-			.stdout(Stdio::null())
-			.stderr(Stdio::null());
 		match self.handle.as_mut() {
 			Some(handle) => match handle.kill() {
 				Ok(_) => {
