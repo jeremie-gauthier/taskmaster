@@ -15,8 +15,9 @@ pub struct Shell {
 impl Shell {
 	pub fn new(stream: UnixStream) -> Self {
 		let mut termios = Termios::from_fd(0).unwrap();
-		termios.c_lflag &= !(ICANON | ECHO);
-		termios.c_cc[VMIN] = 1;
+		tcgetattr(0, &mut termios).unwrap();
+		termios.c_lflag &= !ICANON;
+		termios.c_cc[VMIN] = 3;
 		termios.c_cc[VTIME] = 0;
 		tcsetattr(0, TCSANOW, &termios).unwrap();
 
@@ -49,6 +50,17 @@ impl Shell {
 			let mut input = Vec::new();
 			let reference = stdin.by_ref();
 			reference.take(1).read_to_end(&mut input)?;
+			if input[0] == 27 {
+				println!("ARROW");
+				reference.take(2).read_to_end(&mut input)?;
+				match input[2] {
+					65 => println!("UP"),
+					66 => println!("DOWN"),
+					67 => println!("RIGHT"),
+					68 => println!("LEFT"),
+					_ => println!("UNKNOWN"),
+				}
+			}
 			println!(">>> {:?}", input);
 			// self.add_to_history(&input);
 
