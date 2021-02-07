@@ -3,16 +3,25 @@ use std::error::Error;
 use std::io::prelude::*;
 use std::io::{stdin, stdout, Write};
 use std::os::unix::net::UnixStream;
+use termios::*;
 
 #[derive(Debug)]
 pub struct Shell {
+	termios: Termios,
 	history: Vec<String>,
 	stream: UnixStream,
 }
 
 impl Shell {
 	pub fn new(stream: UnixStream) -> Self {
+		let mut termios = Termios::from_fd(0).unwrap();
+		termios.c_lflag &= !(ICANON | ECHO);
+		termios.c_cc[VMIN] = 1;
+		termios.c_cc[VTIME] = 0;
+		tcsetattr(0, TCSANOW, &termios).unwrap();
+
 		Shell {
+			termios,
 			history: Vec::with_capacity(50),
 			stream,
 		}
@@ -32,19 +41,22 @@ impl Shell {
 			print!("{}", response);
 		}
 
+		let mut stdin = stdin();
 		loop {
 			print!("taskmaster> ");
 			stdout().flush()?;
 
-			let mut input = String::new();
-			stdin().read_line(&mut input)?;
-			self.add_to_history(&input);
+			let mut input = Vec::new();
+			let reference = stdin.by_ref();
+			reference.take(1).read_to_end(&mut input)?;
+			println!(">>> {:?}", input);
+			// self.add_to_history(&input);
 
-			write!(self.stream, "{}", input)?;
-			self.stream.flush()?;
+			// write!(self.stream, "{}", input)?;
+			// self.stream.flush()?;
 
-			let response = self.read_socket_msg(&mut reader)?;
-			print!("{}", response);
+			// let response = self.read_socket_msg(&mut reader)?;
+			// print!("{}", response);
 		}
 	}
 
