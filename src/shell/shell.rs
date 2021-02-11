@@ -2,17 +2,13 @@ use crate::shell::input::Input;
 use crate::OUTPUT_DELIMITER;
 use std::error::Error;
 use std::io::prelude::*;
-use std::io::{stdin, stdout, Write};
 use std::os::unix::net::UnixStream;
 use termios::*;
-
-const SHELL_PROMPT: &'static str = "\x1B[2K\rtaskmaster> ";
 
 #[derive(Debug)]
 pub struct Shell {
 	origin_term_config: Termios,
 	termios: Termios,
-	history: Vec<String>,
 	stream: UnixStream,
 }
 
@@ -29,7 +25,6 @@ impl Shell {
 		Shell {
 			origin_term_config,
 			termios,
-			history: Vec::with_capacity(50),
 			stream,
 		}
 	}
@@ -49,25 +44,16 @@ impl Shell {
 		}
 
 		let mut input = Input::new();
-		print!("{}", SHELL_PROMPT);
 		loop {
-			stdout().flush()?;
-
 			// Etre capable d'effacer Stdin
-			let command = input.read()?;
-			print!("{}{}", SHELL_PROMPT, command);
-			// self.add_to_history(&input);
+			let command = input.read_line()?;
 
-			// write!(self.stream, "{}", input)?;
-			// self.stream.flush()?;
+			write!(self.stream, "{}", command)?;
+			self.stream.flush()?;
 
-			// let response = self.read_socket_msg(&mut reader)?;
-			// print!("{}", response);
+			let response = self.read_socket_msg(&mut reader)?;
+			print!("{}", response);
 		}
-	}
-
-	fn add_to_history(&mut self, input: &str) {
-		self.history.insert(0, String::from(input))
 	}
 
 	fn read_socket_msg(&self, reader: &mut dyn BufRead) -> Result<String, Box<dyn Error>> {
