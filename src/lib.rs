@@ -5,7 +5,6 @@ pub mod server;
 
 pub use server::cli::Cli;
 pub use server::config::config::Config;
-pub use server::config::parse;
 pub use server::daemon::Daemon;
 
 pub mod client;
