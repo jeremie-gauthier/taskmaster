@@ -45,11 +45,9 @@ impl Shell {
 
 		let mut input = Input::new();
 		loop {
-			// Etre capable d'effacer Stdin
 			let command = input.read_line()?;
 
-			write!(self.stream, "{}", command)?;
-			self.stream.flush()?;
+			writeln!(self.stream, "{}", command)?;
 
 			let response = self.read_socket_msg(&mut reader)?;
 			print!("{}", response);
