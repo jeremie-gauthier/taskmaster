@@ -1,4 +1,4 @@
-use crate::shell::command::utils::Command;
+use crate::server::command::utils::Command;
 use crate::Config;
 use std::error::Error;
 use std::str::SplitAsciiWhitespace;

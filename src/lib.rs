@@ -1,18 +1,16 @@
 extern crate crossbeam;
 extern crate yaml_rust;
 
-pub mod cli;
-pub use cli::Cli;
+pub mod server;
 
-pub mod config;
-pub use config::config::Config;
-pub use config::parse;
+pub use server::cli::Cli;
+pub use server::config::config::Config;
+pub use server::config::parse;
+pub use server::daemon::Daemon;
 
-pub mod shell;
+pub mod client;
+pub use client::shell;
 pub use shell::shell::Shell;
-
-pub mod daemon;
-pub use daemon::Daemon;
 
 pub static SOCKET_PATH: &'static str = "/tmp/taskmaster.sock";
 pub static OUTPUT_DELIMITER: char = '#';

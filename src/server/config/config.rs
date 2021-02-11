@@ -1,5 +1,5 @@
 use super::process::Process;
-use crate::config::parameters::Parameters;
+use crate::server::config::parameters::Parameters;
 use std::collections::hash_map::IterMut;
 use std::collections::HashMap;
 use std::error::Error;
