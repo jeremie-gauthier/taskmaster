@@ -1,10 +1,10 @@
-use crate::shell::command::utils::Command;
+use crate::server::command::utils::Command;
 use crate::Config;
 use std::error::Error;
 use std::str::SplitAsciiWhitespace;
 
 const START_USAGE: &'static str =
-	"start <name>\t\tStart a process\nstart <name> <name>\t\tStart multiple processes\nstart all\t\tStart all processes";
+	"start <name>\t\tStart a process\nstart <name> <name>\tStart multiple processes\nstart all\t\tStart all processes";
 
 pub struct Start<'a> {
 	args: SplitAsciiWhitespace<'a>,

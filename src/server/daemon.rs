@@ -1,5 +1,5 @@
-use crate::shell::command::start::Start;
-use crate::shell::command::utils::Command;
+use crate::server::command::start::Start;
+use crate::server::command::utils::Command;
 use crate::Config;
 use crate::OUTPUT_DELIMITER;
 use std::cmp::{max, min};
@@ -73,6 +73,7 @@ impl Daemon {
 						for input in reader.lines() {
 							match input {
 								Ok(input) => {
+									println!(">> {}", input);
 									let mut newline = "\n";
 									let response = dispatch(&input, &config);
 									if response.is_empty() {
