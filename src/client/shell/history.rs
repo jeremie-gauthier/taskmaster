@@ -49,6 +49,16 @@ impl Reset for History {
 mod tests {
 	use super::*;
 
+	macro_rules! history_init {
+		() => {{
+			let mut history = History::new();
+			history.insert("AAAA");
+			history.insert("BBBB");
+			history.insert("CCCC");
+			history
+		}};
+	}
+
 	#[test]
 	fn insert_in_history() {
 		let mut history = History::new();
@@ -59,10 +69,7 @@ mod tests {
 
 	#[test]
 	fn prev_in_history() {
-		let mut history = History::new();
-		history.insert("AAAA");
-		history.insert("BBBB");
-		history.insert("CCCC");
+		let mut history = history_init!();
 		assert_eq!(history.prev(), "CCCC");
 		assert_eq!(history.prev(), "BBBB");
 		assert_eq!(history.prev(), "AAAA");
@@ -72,10 +79,7 @@ mod tests {
 
 	#[test]
 	fn next_in_history() {
-		let mut history = History::new();
-		history.insert("AAAA");
-		history.insert("BBBB");
-		history.insert("CCCC");
+		let mut history = history_init!();
 		assert_eq!(history.next(), "");
 		assert_eq!(history.prev(), "CCCC");
 		assert_eq!(history.prev(), "BBBB");
@@ -85,10 +89,7 @@ mod tests {
 
 	#[test]
 	fn reset_history() {
-		let mut history = History::new();
-		history.insert("AAAA");
-		history.insert("BBBB");
-		history.insert("CCCC");
+		let mut history = history_init!();
 		history.prev();
 		history.prev();
 		assert_eq!(history.history_index, 2);
