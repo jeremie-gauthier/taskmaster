@@ -10,6 +10,7 @@ const SHELL_PROMPT: &'static str = "\rtaskmaster> ";
 
 #[derive(Debug)]
 pub struct Shell {
+	origin_term_config: Termios,
 	termios: Termios,
 	history: Vec<String>,
 	stream: UnixStream,
@@ -17,7 +18,8 @@ pub struct Shell {
 
 impl Shell {
 	pub fn new(stream: UnixStream) -> Self {
-		let mut termios = Termios::from_fd(0).unwrap();
+		let origin_term_config = Termios::from_fd(0).unwrap();
+		let mut termios = origin_term_config.clone();
 		tcgetattr(0, &mut termios).unwrap();
 		termios.c_lflag &= !(ECHO | ICANON);
 		termios.c_cc[VMIN] = 1;
@@ -25,6 +27,7 @@ impl Shell {
 		tcsetattr(0, TCSANOW, &termios).unwrap();
 
 		Shell {
+			origin_term_config,
 			termios,
 			history: Vec::with_capacity(50),
 			stream,
@@ -72,5 +75,11 @@ impl Shell {
 		reader.read_until(OUTPUT_DELIMITER as u8, &mut response_utf8)?;
 		response_utf8.pop();
 		Ok(String::from_utf8(response_utf8)?)
+	}
+}
+
+impl Drop for Shell {
+	fn drop(&mut self) {
+		tcsetattr(0, TCSANOW, &self.origin_term_config).unwrap();
 	}
 }
