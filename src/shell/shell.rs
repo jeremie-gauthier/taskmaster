@@ -6,7 +6,7 @@ use std::io::{stdin, stdout, Write};
 use std::os::unix::net::UnixStream;
 use termios::*;
 
-const SHELL_PROMPT: &'static str = "\rtaskmaster> ";
+const SHELL_PROMPT: &'static str = "\x1B[2K\rtaskmaster> ";
 
 #[derive(Debug)]
 pub struct Shell {
