@@ -9,36 +9,32 @@ pub struct History {
 
 impl History {
 	pub fn new() -> Self {
+		let mut history = Vec::with_capacity(50);
+		history.push(String::default());
+
 		History {
-			history: Vec::with_capacity(50),
+			history,
 			history_index: 0,
 		}
 	}
 
 	pub fn prev(&mut self) -> String {
-		if self.history.is_empty() {
-			String::default()
-		} else {
-			let idx = self.history_index;
-			if self.history_index < self.history.len() - 1 {
-				self.history_index += 1;
-			}
-			self.history[idx].clone()
+		if self.history_index < self.history.len() - 1 {
+			self.history_index += 1;
 		}
+		self.history[self.history_index].clone()
 	}
 
 	pub fn next(&mut self) -> String {
-		if self.history.is_empty() || self.history_index == 0 {
-			String::default()
-		} else {
+		if self.history_index > 0 {
 			self.history_index -= 1;
-			self.history[self.history_index].clone()
 		}
+		self.history[self.history_index].clone()
 	}
 
 	pub fn insert(&mut self, command: &str) {
 		if !command.trim().is_empty() {
-			self.history.insert(0, String::from(command));
+			self.history.insert(1, String::from(command));
 		}
 	}
 }
@@ -46,5 +42,57 @@ impl History {
 impl Reset for History {
 	fn reset(&mut self) {
 		self.history_index = 0;
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	fn insert_in_history() {
+		let mut history = History::new();
+		assert_eq!(history.history[0], String::default());
+		history.insert("hello");
+		assert_eq!(history.history[1], "hello");
+	}
+
+	#[test]
+	fn prev_in_history() {
+		let mut history = History::new();
+		history.insert("AAAA");
+		history.insert("BBBB");
+		history.insert("CCCC");
+		assert_eq!(history.prev(), "CCCC");
+		assert_eq!(history.prev(), "BBBB");
+		assert_eq!(history.prev(), "AAAA");
+		assert_eq!(history.prev(), "AAAA");
+		assert_eq!(history.prev(), "AAAA");
+	}
+
+	#[test]
+	fn next_in_history() {
+		let mut history = History::new();
+		history.insert("AAAA");
+		history.insert("BBBB");
+		history.insert("CCCC");
+		assert_eq!(history.next(), "");
+		assert_eq!(history.prev(), "CCCC");
+		assert_eq!(history.prev(), "BBBB");
+		assert_eq!(history.next(), "CCCC");
+		assert_eq!(history.next(), "");
+	}
+
+	#[test]
+	fn reset_history() {
+		let mut history = History::new();
+		history.insert("AAAA");
+		history.insert("BBBB");
+		history.insert("CCCC");
+		history.prev();
+		history.prev();
+		assert_eq!(history.history_index, 2);
+		history.reset();
+		assert_eq!(history.history_index, 0);
 	}
 }
