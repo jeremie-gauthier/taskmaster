@@ -1,9 +1,12 @@
+use crate::shell::input::Input;
 use crate::OUTPUT_DELIMITER;
 use std::error::Error;
 use std::io::prelude::*;
 use std::io::{stdin, stdout, Write};
 use std::os::unix::net::UnixStream;
 use termios::*;
+
+const SHELL_PROMPT: &'static str = "\rtaskmaster> ";
 
 #[derive(Debug)]
 pub struct Shell {
@@ -16,8 +19,8 @@ impl Shell {
 	pub fn new(stream: UnixStream) -> Self {
 		let mut termios = Termios::from_fd(0).unwrap();
 		tcgetattr(0, &mut termios).unwrap();
-		termios.c_lflag &= !ICANON;
-		termios.c_cc[VMIN] = 3;
+		termios.c_lflag &= !(ECHO | ICANON);
+		termios.c_cc[VMIN] = 1;
 		termios.c_cc[VTIME] = 0;
 		tcsetattr(0, TCSANOW, &termios).unwrap();
 
@@ -42,26 +45,14 @@ impl Shell {
 			print!("{}", response);
 		}
 
-		let mut stdin = stdin();
+		let mut input = Input::new();
+		print!("{}", SHELL_PROMPT);
 		loop {
-			print!("taskmaster> ");
 			stdout().flush()?;
 
-			let mut input = Vec::new();
-			let reference = stdin.by_ref();
-			reference.take(1).read_to_end(&mut input)?;
-			if input[0] == 27 {
-				println!("ARROW");
-				reference.take(2).read_to_end(&mut input)?;
-				match input[2] {
-					65 => println!("UP"),
-					66 => println!("DOWN"),
-					67 => println!("RIGHT"),
-					68 => println!("LEFT"),
-					_ => println!("UNKNOWN"),
-				}
-			}
-			println!(">>> {:?}", input);
+			// Etre capable d'effacer Stdin
+			let command = input.read()?;
+			print!("{}{}", SHELL_PROMPT, command);
 			// self.add_to_history(&input);
 
 			// write!(self.stream, "{}", input)?;
