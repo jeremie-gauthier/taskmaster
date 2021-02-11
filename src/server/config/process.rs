@@ -1,6 +1,9 @@
 use crate::server::config::parameters::Parameters;
+use crate::server::config::time::Time;
 use std::error::Error;
+use std::fmt;
 use std::process::Child;
+use std::time::SystemTime;
 
 #[derive(Debug, PartialEq)]
 pub enum ProcessStatus {
@@ -8,6 +11,7 @@ pub enum ProcessStatus {
 	Exited,
 	Fatal,
 	Running,
+	Starting,
 	Stopped,
 }
 
@@ -18,6 +22,7 @@ pub struct Process {
 	handle: Option<Child>,
 	status: ProcessStatus,
 	should_reload: bool,
+	sys_time: Option<SystemTime>,
 }
 
 impl Process {
@@ -28,6 +33,7 @@ impl Process {
 			handle: None,
 			status: ProcessStatus::Stopped,
 			should_reload: false,
+			sys_time: None,
 		};
 
 		if process.parameters.autostart {
@@ -44,6 +50,7 @@ impl Process {
 			ProcessStatus::Exited => "EXITED",
 			ProcessStatus::Fatal => "FATAL",
 			ProcessStatus::Running => "RUNNING",
+			ProcessStatus::Starting => "STARTING",
 			ProcessStatus::Stopped => "STOPPED",
 		})
 	}
@@ -59,12 +66,14 @@ impl Process {
 				Ok(handle) => {
 					self.handle = Some(handle);
 					self.status = ProcessStatus::Running;
+					self.sys_time = Some(Time::now());
 					Ok(format!("{}: started", self.name))
 				}
 				Err(err) => {
 					eprintln!("{}", err);
 					self.handle = None;
 					self.status = ProcessStatus::Fatal;
+					self.sys_time = None;
 					Err(format!("{}: ERROR (spawn error)", self.name))?
 				}
 			},
@@ -77,11 +86,41 @@ impl Process {
 				Ok(_) => {
 					self.handle = None;
 					self.status = ProcessStatus::Stopped;
+					self.sys_time = Some(Time::now());
 					format!("{}: stopped", self.name)
 				}
 				Err(err) => format!("An error occured while exiting the process {}", err),
 			},
 			None => format!("{}: ERROR (not running)", self.name),
 		}
+	}
+
+	fn get_pid(&self) -> u32 {
+		self.handle.as_ref().unwrap().id()
+	}
+}
+
+impl fmt::Display for Process {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		let description = match self.status {
+			ProcessStatus::Backoff => {
+				format!("Exited too quickly (process log may have details)")
+			}
+			ProcessStatus::Starting => format!(""),
+			ProcessStatus::Running => format!(
+				"pid {}, uptime {}",
+				self.get_pid(),
+				match self.sys_time {
+					Some(time) => Time::elapsed(time),
+					None => String::from("???"),
+				}
+			),
+			ProcessStatus::Stopped => match self.sys_time {
+				Some(time) => format!("{} ago", Time::elapsed(time)),
+				None => format!("Not started"),
+			},
+			_ => format!("???"),
+		};
+		write!(f, "{}\t\t\t{}\t\t{}", self.name, self.status(), description)
 	}
 }

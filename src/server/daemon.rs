@@ -1,4 +1,5 @@
 use crate::server::command::start::Start;
+use crate::server::command::status::Status;
 use crate::server::command::utils::Command;
 use crate::Config;
 use crate::OUTPUT_DELIMITER;
@@ -123,8 +124,9 @@ fn dispatch(input: &str, config: &Arc<Mutex<Config>>) -> String {
 			process::exit(1)
 		}
 	};
-	let mut command = match cmd.as_ref() {
-		"start" => Start::new(args, &mut config),
+	let mut command: Box<dyn Command> = match cmd.as_ref() {
+		"status" => Box::new(Status::new(args, &mut config)),
+		"start" => Box::new(Start::new(args, &mut config)),
 		_ => return format!("*** Unknown syntax: {}", input),
 	};
 
