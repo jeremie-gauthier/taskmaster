@@ -38,7 +38,6 @@ impl Config {
 			),
 			None => HashMap::new(),
 		};
-		println!("{:?}", processes);
 
 		let log_file = match &doc["log_file"].as_str() {
 			Some(value) => File::create(value)?,
