@@ -3,9 +3,6 @@ use crate::Config;
 use std::error::Error;
 use std::str::SplitAsciiWhitespace;
 
-const START_USAGE: &'static str =
-	"start <name>\t\tStart a process\nstart <name> <name>\tStart multiple processes\nstart all\t\tStart all processes";
-
 pub struct Start<'a> {
 	args: SplitAsciiWhitespace<'a>,
 	config: &'a mut Config,
@@ -63,7 +60,7 @@ impl<'a> Command for Start<'a> {
 			}
 			None => Err(format!(
 				"Error: start requires a process name\n{}",
-				START_USAGE
+				self.usage()
 			))?,
 		}
 	}
@@ -90,5 +87,13 @@ impl<'a> Command for Start<'a> {
 		}
 		result.pop();
 		Ok(result)
+	}
+
+	fn usage(&self) -> String {
+		String::from(
+			"start <name>\t\tStart a process\n\
+			start <name> <name>\tStart multiple processes\n\
+			start all\t\tStart all processes",
+		)
 	}
 }
