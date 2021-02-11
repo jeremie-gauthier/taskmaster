@@ -14,6 +14,7 @@ fn main() {
 		eprintln!("Problem parsing config file: {}", err);
 		process::exit(1);
 	});
+	println!("{:#?}", config);
 
 	let mut daemon = Daemon::new(config);
 	daemon.listen(SOCKET_PATH).unwrap_or_else(|err| {
