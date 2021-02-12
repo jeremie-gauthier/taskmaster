@@ -11,6 +11,8 @@ pub struct Start<'a> {
 }
 
 impl<'a> Start<'a> {
+	pub const CMD_NAME: &'a str = "start";
+
 	pub fn new(args: SplitAsciiWhitespace<'a>, config: &'a mut Config) -> Self {
 		Start {
 			args,

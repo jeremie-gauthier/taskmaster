@@ -127,8 +127,8 @@ fn dispatch(input: &str, config: &Arc<Mutex<Config>>) -> String {
 		}
 	};
 	let mut command: Box<dyn Command> = match cmd.as_ref() {
-		"status" => Box::new(Status::new(args, &mut config)),
-		"start" => Box::new(Start::new(args, &mut config)),
+		Status::CMD_NAME => Box::new(Status::new(args, &mut config)),
+		Start::CMD_NAME => Box::new(Start::new(args, &mut config)),
 		_ => return format!("*** Unknown syntax: {}", input),
 	};
 

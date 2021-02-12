@@ -13,4 +13,6 @@ pub struct Stop<'a> {
 	all_option: bool,
 }
 
-impl<'a> Stop<'a> {}
+impl<'a> Stop<'a> {
+	pub const CMD_NAME: &'a str = "stop";
+}

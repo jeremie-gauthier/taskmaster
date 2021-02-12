@@ -11,6 +11,8 @@ pub struct Status<'a> {
 }
 
 impl<'a> Status<'a> {
+	pub const CMD_NAME: &'a str = "status";
+
 	pub fn new(args: SplitAsciiWhitespace<'a>, config: &'a mut Config) -> Self {
 		Status {
 			args,
