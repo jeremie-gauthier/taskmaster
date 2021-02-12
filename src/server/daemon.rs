@@ -67,22 +67,22 @@ impl Daemon {
 							}
 						};
 
-						write!(stream, "Welcome to taskmaster\n{}", OUTPUT_DELIMITER)
-							.unwrap_or_default();
-						stream.flush().unwrap_or_default();
+						write!(
+							stream,
+							"{}",
+							format_response(&dispatch(Status::CMD_NAME, &config))
+						)
+						.unwrap_or_default();
 
 						for input in reader.lines() {
 							match input {
 								Ok(input) => {
-									println!(">> {}", input);
-									let mut newline = "\n";
-									let response = dispatch(&input, &config);
-									if response.is_empty() {
-										newline = "";
-									};
-									write!(stream, "{}{}{}", response, newline, OUTPUT_DELIMITER)
-										.unwrap_or_default();
-									stream.flush().unwrap_or_default();
+									write!(
+										stream,
+										"{}",
+										format_response(&dispatch(&input, &config))
+									)
+									.unwrap_or_default();
 								}
 								Err(err) => eprintln!("read error: {}", err),
 							};
@@ -93,9 +93,11 @@ impl Daemon {
 					eprintln!("Connection refused: Threads' limit reached");
 					write!(
 						stream,
-						"Connection refused: Threads' limit reached\n \
-						Increase the limit in your configuration file or shutdown a client\n{}",
-						OUTPUT_DELIMITER
+						"{}",
+						format_response(
+							"Connection refused: Threads' limit reached\n\
+							Increase the limit in your configuration file or shutdown a client"
+						),
 					)
 					.unwrap_or_default();
 					stream.flush().unwrap_or_default();
@@ -140,4 +142,12 @@ fn dispatch(input: &str, config: &Arc<Mutex<Config>>) -> String {
 		}
 		Err(err) => format!("{}", err),
 	}
+}
+
+fn format_response(response: &str) -> String {
+	let mut newline = "\n";
+	if response.is_empty() {
+		newline = "";
+	};
+	format!("{}{}{}", response, newline, OUTPUT_DELIMITER)
 }
