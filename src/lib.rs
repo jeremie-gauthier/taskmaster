@@ -4,7 +4,7 @@ extern crate yaml_rust;
 pub mod server;
 
 pub use server::cli::Cli;
-pub use server::config::config::Config;
+pub use server::config::Config;
 pub use server::daemon::Daemon;
 
 pub mod client;

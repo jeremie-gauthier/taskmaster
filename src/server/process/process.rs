@@ -1,5 +1,5 @@
-use crate::server::config::parameters::Parameters;
-use crate::server::config::time::Time;
+use crate::server::process::parameters::Parameters;
+use crate::server::process::time::Time;
 use std::error::Error;
 use std::fmt;
 use std::process::Child;
