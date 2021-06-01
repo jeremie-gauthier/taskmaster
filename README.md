@@ -1,2 +1,7 @@
-# taskmaster
-A small taskmaster written in Rust
+# Taskmaster
+
+A supervisor-like CLI written in deno
+
+## Installation
+
+Follow the [deno instructions](https://deno.land/#installation)

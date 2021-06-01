@@ -1,5 +1,7 @@
 {
-  "editor.defaultFormatter": "rust-lang.rust",
-  "editor.tabSize": 4,
-  "editor.insertSpaces": false,
+  "editor.defaultFormatter": "denoland.vscode-deno",
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "deno.enable": true,
+  "deno.lint": true
 }

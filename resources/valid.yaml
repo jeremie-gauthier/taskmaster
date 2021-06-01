@@ -1,9 +1,0 @@
-log_file: ./logs
-programs:
-  foo:
-    cmd: /bin/ls /tmp && /bin/ls && /bin/ls hfjdhfuk
-    stdout: /tmp/taskmaster.foo.stdout
-    stderr: /tmp/taskmaster.foo.stderr
-  bar:
-    cmd: /bin/cat
-    autostart: true
