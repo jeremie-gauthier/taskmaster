@@ -1,0 +1,11 @@
+{
+  "log_file": "./logs",
+  "programs": {
+    "foo": {
+      "cmd": "/bin/ls /tmp"
+    },
+    "bar": {
+      "cmd": "/bin/cat"
+    }
+  }
+}
