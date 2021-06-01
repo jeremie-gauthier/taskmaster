@@ -25,12 +25,27 @@ export default class TCPMessage {
     try {
       const buffer = new Uint8Array(TCPMessage.BUFFER_SIZE);
       const nBytesRead = await this.conn.read(buffer);
-      const rawInput = TCPMessage.Decoder.decode(buffer);
-      const input = rawInput.substr(0, nBytesRead ?? 0);
-      return input;
+      const rawMessage = TCPMessage.Decoder.decode(buffer);
+      const message = rawMessage.substr(0, nBytesRead ?? 0);
+      return message;
     } catch (error) {
       console.error(`[-] Cannot read TCP message (${error})`);
       return null;
+    }
+  }
+
+  async *iterRead(): AsyncIterableIterator<string> {
+    const buffer = new Uint8Array(TCPMessage.BUFFER_SIZE);
+
+    while (true) {
+      try {
+        const nBytesRead = await this.conn.read(buffer);
+        const rawMessage = TCPMessage.Decoder.decode(buffer);
+        const message = rawMessage.substr(0, nBytesRead ?? 0);
+        yield message;
+      } catch (error) {
+        console.error(`[-] Cannot read TCP message (${error})`);
+      }
     }
   }
 }
