@@ -1,34 +1,34 @@
 import TCPMessage from "./lib/tcp/TCPMessage.class.ts";
+import TCPListener from "./lib/tcp/TCPListener.class.ts";
+import matchCommand from "./lib/commands/matchCommand.ts";
+import { TCP_PORT } from "./config.ts";
 
-const handleConn = async (conn: Deno.Conn) => {
-  const TCPMsg = new TCPMessage(conn);
+const handleConn = async (TCPMsg: TCPMessage) => {
   await TCPMsg.write("Hello, client!");
   await readFromConn(TCPMsg);
-  conn.close();
+  await TCPMsg.write("Goodbye !");
 };
 
 const readFromConn = async (TCPMsg: TCPMessage) => {
-  let read = true;
+  const messages = TCPMsg.iterRead();
 
-  while (read) {
-    const input = await TCPMsg.read();
-    if (input) {
-      // exec cmd
+  for await (const msg of messages) {
+    if (!msg) continue;
 
-      if (input === "exit") {
-        read = false;
-        await TCPMsg.write("Goodbye !");
-        continue;
-      }
-      TCPMsg.write(`You sent me: ${input}`);
+    // exec cmd
+    console.log("received", msg);
+    const cmd = matchCommand(msg);
+    console.log(cmd);
+
+    if (msg === "exit") {
+      return;
     }
+    TCPMsg.write(`You sent me: ${msg}`);
   }
 };
 
-const listener = Deno.listen({ port: 8080 });
-
-console.log("listening on 0.0.0.0:8080");
-
-for await (const conn of listener) {
-  handleConn(conn);
-}
+(async () => {
+  const listener = new TCPListener(TCP_PORT);
+  await listener.handleIncomingConn(handleConn);
+  console.log("[*] Quit taskmasterd");
+})();
