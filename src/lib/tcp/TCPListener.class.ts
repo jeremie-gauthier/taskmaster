@@ -16,7 +16,7 @@ export default class TCPListener {
   constructor(port: number, options?: Partial<TCPListenerOptions>) {
     this.options = { ...this.options, ...options };
     this.listener = Deno.listen({ port });
-    console.log("Listening on 0.0.0.0:8080");
+    console.info("[*] Listening on 0.0.0.0:8080");
   }
 
   private canConnect = () => this.activeConn < this.options.maxConn;

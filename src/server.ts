@@ -30,5 +30,5 @@ const readFromConn = async (TCPMsg: TCPMessage) => {
 (async () => {
   const listener = new TCPListener(TCP_PORT);
   await listener.handleIncomingConn(handleConn);
-  console.log("[*] Quit taskmasterd");
+  console.info("[*] Quit taskmasterd");
 })();
