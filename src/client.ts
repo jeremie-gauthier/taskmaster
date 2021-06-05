@@ -6,9 +6,8 @@ import TCPConnecter from "./lib/tcp/TCPConnecter.class.ts";
     const tcp = new TCPConnecter(8080);
     await tcp.Ready;
 
-    const TCPMsg = tcp.getTCPMsg();
-    if (TCPMsg) {
-      await repl(TCPMsg);
+    if (tcp.TCPMsg) {
+      await repl(tcp.TCPMsg);
     }
   } catch (error) {
     console.log(error.message);

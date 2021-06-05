@@ -6,14 +6,14 @@ import TCPMessage from "./TCPMessage.class.ts";
 export default class TCPConnecter {
   public readonly Ready: Promise<void>;
   private conn?: Deno.Conn;
-  private TCPMsg?: TCPMessage;
+  private _TCPMsg?: TCPMessage;
 
   constructor(port: number) {
     const init = async () => {
       this.conn = await Deno.connect({ port });
-      this.TCPMsg = new TCPMessage(this.conn);
+      this._TCPMsg = new TCPMessage(this.conn);
 
-      const greetings = await this.TCPMsg.read();
+      const greetings = await this._TCPMsg.read();
       if (greetings?.payload?.canConnect) {
         console.info(`[*] Connected to 0.0.0.0:${port}`);
         console.log(greetings.msg);
@@ -27,8 +27,8 @@ export default class TCPConnecter {
     this.Ready = init();
   }
 
-  getTCPMsg() {
-    return this.TCPMsg;
+  get TCPMsg() {
+    return this._TCPMsg;
   }
 
   close() {

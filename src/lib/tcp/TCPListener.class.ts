@@ -20,9 +20,11 @@ export default class TCPListener {
     console.info(`[*] Listening on 0.0.0.0:${port}`);
   }
 
-  private getNbConn = () => Object.entries(this.connections).length;
+  private get activeConns() {
+    return Object.entries(this.connections).length;
+  }
 
-  private canConnect = () => this.getNbConn() < this.options.maxConn;
+  private canConnect = () => this.activeConns < this.options.maxConn;
 
   private addConn = (conn: Deno.Conn, TCPMsg: TCPMessage) => {
     this.connections[conn.rid] = { conn, TCPMsg };
