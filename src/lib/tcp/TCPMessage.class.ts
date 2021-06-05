@@ -1,6 +1,8 @@
-import { isEmpty, isUndefined } from "../utils/index.ts";
+import { isEmpty, isNull, isUndefined } from "../utils/index.ts";
 
-export type JSONMessage<Payload> = {
+type Payload = Record<string, unknown>;
+
+export type JSONMessage = {
   msg: string;
   payload?: Payload;
 };
@@ -14,11 +16,11 @@ export default class TCPMessage {
     this.conn = conn;
   }
 
-  async write<T>(msg: string, payload?: T) {
+  async write(msg: string, payload?: Payload) {
     if (isEmpty(msg) && isUndefined(payload)) return;
 
     try {
-      const data: JSONMessage<T> = { msg, payload };
+      const data: JSONMessage = { msg, payload };
       const encodedMsg = TCPMessage.Encoder.encode(JSON.stringify(data));
       await this.conn.write(encodedMsg);
     } catch (error) {
@@ -30,26 +32,36 @@ export default class TCPMessage {
     try {
       const buffer = new Uint8Array(TCPMessage.BUFFER_SIZE);
       const nBytesRead = await this.conn.read(buffer);
+      if (isNull(nBytesRead) || nBytesRead === 0) {
+        return null;
+      }
       const rawMessage = TCPMessage.Decoder.decode(buffer);
       const message = rawMessage.substr(0, nBytesRead ?? 0);
-      return JSON.parse(message) as JSONMessage<unknown>;
+      return JSON.parse(message) as JSONMessage;
     } catch (error) {
       console.error(`[-] Cannot read TCP message (${error})`);
       return null;
     }
   }
 
-  async *iterRead(): AsyncIterableIterator<JSONMessage<unknown>> {
+  async *iterRead(): AsyncIterableIterator<JSONMessage> {
     const buffer = new Uint8Array(TCPMessage.BUFFER_SIZE);
 
     while (true) {
       try {
         const nBytesRead = await this.conn.read(buffer);
+        if (isNull(nBytesRead)) {
+          break;
+        } else if (nBytesRead === 0) {
+          continue;
+        }
         const rawMessage = TCPMessage.Decoder.decode(buffer);
         const message = rawMessage.substr(0, nBytesRead ?? 0);
+        console.log(`|${message}|${nBytesRead}`);
         yield JSON.parse(message);
       } catch (error) {
         console.error(`[-] Cannot read TCP message (${error})`);
+        break;
       }
     }
   }

@@ -8,8 +8,8 @@ const repl = async (TCPMsg: TCPMessage) => {
 
     if (input) {
       await TCPMsg.write(input);
-      const response = await TCPMsg.read();
-      console.log(response);
+      // const response = await TCPMsg.read();
+      // console.log(response);
       if (input === "exit") {
         read = false;
       }

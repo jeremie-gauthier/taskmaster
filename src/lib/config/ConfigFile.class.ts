@@ -1,17 +1,12 @@
 export default class ConfigFile {
-  private pathname!: string;
-  private config!: Record<string, unknown>;
+  private pathname: string;
+  private config: Record<string, unknown>;
 
   private static instance: ConfigFile;
 
   private constructor(pathname: string) {
-    const init = async () => {
-      this.pathname = pathname;
-      this.config = await this.loadConfigFile();
-      return this;
-    };
-
-    init();
+    this.pathname = pathname;
+    this.config = this.loadConfigFile();
   }
 
   static getInstance(pathname?: string) {
@@ -27,8 +22,8 @@ export default class ConfigFile {
     return ConfigFile.instance;
   }
 
-  private async loadConfigFile() {
-    const configFileContent = await Deno.readTextFile(this.pathname);
+  private loadConfigFile() {
+    const configFileContent = Deno.readTextFileSync(this.pathname);
     const config = JSON.parse(configFileContent);
     return config;
   }

@@ -4,7 +4,7 @@ import matchCommand from "./lib/commands/matchCommand.ts";
 import { TCP_PORT } from "./config.ts";
 
 const handleConn = async (TCPMsg: TCPMessage) => {
-  await TCPMsg.write("Hello, client!");
+  await TCPMsg.write("Hello, client!", { canConnect: true });
   await readFromConn(TCPMsg);
   await TCPMsg.write("Goodbye !");
 };
@@ -28,5 +28,4 @@ const readFromConn = async (TCPMsg: TCPMessage) => {
 (async () => {
   const listener = new TCPListener(TCP_PORT);
   await listener.handleIncomingConn(handleConn);
-  console.info("[*] Quit taskmasterd");
 })();

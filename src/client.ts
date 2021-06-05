@@ -1,14 +1,16 @@
 import repl from "./lib/repl/index.ts";
-import TCPMessage from "./lib/tcp/TCPMessage.class.ts";
+import TCPConnecter from "./lib/tcp/TCPConnecter.class.ts";
 
 (async () => {
-  const conn = await Deno.connect({ port: 8080 });
-  const TCPmsg = new TCPMessage(conn);
+  try {
+    const tcp = new TCPConnecter(8080);
+    await tcp.Ready;
 
-  const greetings = await TCPmsg.read();
-  if (greetings) {
-    console.log(greetings.msg);
+    const TCPMsg = tcp.getTCPMsg();
+    if (TCPMsg) {
+      await repl(TCPMsg);
+    }
+  } catch (error) {
+    console.log(error.message);
   }
-
-  await repl(TCPmsg);
 })();
