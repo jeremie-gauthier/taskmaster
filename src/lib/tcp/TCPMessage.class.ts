@@ -1,5 +1,9 @@
-import { isEmpty } from "../utils/index.ts";
+import { isEmpty, isUndefined } from "../utils/index.ts";
 
+export type JSONMessage<Payload> = {
+  msg: string;
+  payload?: Payload;
+};
 export default class TCPMessage {
   private conn: Deno.Conn;
   private static Encoder = new TextEncoder();
@@ -10,11 +14,12 @@ export default class TCPMessage {
     this.conn = conn;
   }
 
-  async write(msg: string) {
-    if (isEmpty(msg)) return;
+  async write<T>(msg: string, payload?: T) {
+    if (isEmpty(msg) && isUndefined(payload)) return;
 
     try {
-      const encodedMsg = TCPMessage.Encoder.encode(msg);
+      const data: JSONMessage<T> = { msg, payload };
+      const encodedMsg = TCPMessage.Encoder.encode(JSON.stringify(data));
       await this.conn.write(encodedMsg);
     } catch (error) {
       console.error(`[-] Cannot write TCP message (${error})`);
@@ -27,14 +32,14 @@ export default class TCPMessage {
       const nBytesRead = await this.conn.read(buffer);
       const rawMessage = TCPMessage.Decoder.decode(buffer);
       const message = rawMessage.substr(0, nBytesRead ?? 0);
-      return message;
+      return JSON.parse(message) as JSONMessage<unknown>;
     } catch (error) {
       console.error(`[-] Cannot read TCP message (${error})`);
       return null;
     }
   }
 
-  async *iterRead(): AsyncIterableIterator<string> {
+  async *iterRead(): AsyncIterableIterator<JSONMessage<unknown>> {
     const buffer = new Uint8Array(TCPMessage.BUFFER_SIZE);
 
     while (true) {
@@ -42,7 +47,7 @@ export default class TCPMessage {
         const nBytesRead = await this.conn.read(buffer);
         const rawMessage = TCPMessage.Decoder.decode(buffer);
         const message = rawMessage.substr(0, nBytesRead ?? 0);
-        yield message;
+        yield JSON.parse(message);
       } catch (error) {
         console.error(`[-] Cannot read TCP message (${error})`);
       }

@@ -6,7 +6,9 @@ import TCPMessage from "./lib/tcp/TCPMessage.class.ts";
   const TCPmsg = new TCPMessage(conn);
 
   const greetings = await TCPmsg.read();
-  console.log(greetings);
+  if (greetings) {
+    console.log(greetings.msg);
+  }
 
   await repl(TCPmsg);
 })();

@@ -10,13 +10,11 @@ const handleConn = async (TCPMsg: TCPMessage) => {
 };
 
 const readFromConn = async (TCPMsg: TCPMessage) => {
-  const messages = TCPMsg.iterRead();
+  const jsonMessages = TCPMsg.iterRead();
 
-  for await (const msg of messages) {
-    if (!msg) continue;
-
+  for await (const { msg, payload } of jsonMessages) {
     // exec cmd
-    console.log("received", msg);
+    console.log("received", msg, payload);
     const cmd = matchCommand(msg);
     console.log(cmd);
 
