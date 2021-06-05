@@ -29,10 +29,10 @@ export default class TCPListener {
       // else it would stuck and block other connections
       if (this.canConnect()) {
         onConnect(TCPMsg)
-          .then(conn.close);
+          .then(() => conn.close());
       } else {
         TCPMsg.write("[-] Cannot connect to taskmaster daemon (No space left)")
-          .then(conn.close);
+          .then(() => conn.close());
       }
     }
   }
