@@ -11,7 +11,7 @@ Follow the [deno instructions](https://deno.land/#installation)
 - Run the server with
 
   ```bash
-  deno run --allow-net --allow-read src/server.ts
+  deno run --allow-net --allow-read --allow-run src/server.ts
   ```
 
 - Run the client with
