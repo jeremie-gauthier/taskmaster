@@ -1,7 +1,9 @@
+import ConfigFile from "./lib/config/ConfigFile.class.ts";
 import TCPMessage from "./lib/tcp/TCPMessage.class.ts";
 import TCPListener from "./lib/tcp/TCPListener.class.ts";
 import matchCommand from "./lib/commands/matchCommand.ts";
 import { TCP_PORT } from "./config.ts";
+import Processes from "./lib/process/Container.class.ts";
 
 const handleConn = async (TCPMsg: TCPMessage) => {
   await TCPMsg.write("Hello, client!", { canConnect: true });
@@ -26,6 +28,16 @@ const readFromConn = async (TCPMsg: TCPMessage) => {
 };
 
 (async () => {
+  if (Deno.args.length !== 2) {
+    console.error("taskmaster usage goes here");
+    return 1;
+  }
+
+  const pathname = Deno.args[1];
+  ConfigFile.getInstance(pathname);
+  Processes.getInstance().buildFromConfigFile();
+
   const listener = new TCPListener(TCP_PORT);
   await listener.handleIncomingConn(handleConn);
+  return 0;
 })();

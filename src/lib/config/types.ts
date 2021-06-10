@@ -46,5 +46,6 @@ export type ProcessConfig = Partial<{
 }>;
 
 export type Configuration = {
+  logFile: string;
   programs: Record<string, ProcessConfig>[];
 };
