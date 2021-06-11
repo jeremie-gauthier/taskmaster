@@ -2,8 +2,9 @@ import ConfigFile from "./lib/config/ConfigFile.class.ts";
 import TCPMessage from "./lib/tcp/TCPMessage.class.ts";
 import TCPListener from "./lib/tcp/TCPListener.class.ts";
 import matchCommand from "./lib/commands/matchCommand.ts";
-import { TCP_PORT } from "./config.ts";
 import Processes from "./lib/process/Container.class.ts";
+import { isNull } from "./lib/utils/index.ts";
+import { getTcpPort } from "./lib/utils/envVars.ts";
 
 const handleConn = async (TCPMsg: TCPMessage) => {
   await TCPMsg.write("Hello, client!", { canConnect: true });
@@ -32,6 +33,9 @@ const readFromConn = async (TCPMsg: TCPMessage) => {
     console.error("taskmaster usage goes here");
     return 1;
   }
+
+  const TCP_PORT = getTcpPort();
+  if (isNull(TCP_PORT)) return 1;
 
   const pathname = Deno.args[1];
   ConfigFile.getInstance(pathname);

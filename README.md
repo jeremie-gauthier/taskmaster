@@ -11,13 +11,13 @@ Follow the [deno instructions](https://deno.land/#installation)
 - Run the server with
 
   ```bash
-  deno run --allow-net --allow-read --allow-run src/server.ts
+  export TASKMASTER_TCP_PORT=9000 && deno run --allow-env --allow-read --allow-net --allow-run src/server.ts
   ```
 
 - Run the client with
 
   ```bash
-  deno run --allow-net src/client.ts
+  export TASKMASTER_TCP_PORT=9000 && deno run --allow-env --allow-net src/client.ts
   ```
 
 ## Architecture

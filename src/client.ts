@@ -1,9 +1,13 @@
 import repl from "./lib/repl/index.ts";
 import TCPConnecter from "./lib/tcp/TCPConnecter.class.ts";
-import { TCP_PORT } from "./config.ts";
+import { getTcpPort } from "./lib/utils/envVars.ts";
+import { isNull } from "./lib/utils/index.ts";
 
 (async () => {
   try {
+    const TCP_PORT = getTcpPort();
+    if (isNull(TCP_PORT)) return 1;
+
     const tcp = new TCPConnecter(TCP_PORT);
     await tcp.Ready;
 
