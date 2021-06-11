@@ -29,7 +29,7 @@ const readFromConn = async (TCPMsg: TCPMessage) => {
 };
 
 (async () => {
-  if (Deno.args.length !== 2) {
+  if (Deno.args.length !== 1) {
     console.error("taskmaster usage goes here");
     return 1;
   }
