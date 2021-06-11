@@ -4,10 +4,10 @@ EXPOSE ${TASKMASTER_TCP_PORT}
 
 COPY docker/server/entrypoint.sh /
 
-WORKDIR /taskmaster
+WORKDIR /taskmasterd
 
 USER deno
 
-COPY src /taskmaster/src
+COPY src /taskmasterd/src
 
 ENTRYPOINT [ "/entrypoint.sh" ]

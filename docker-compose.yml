@@ -10,4 +10,4 @@ services:
     ports: 
       - ${TASKMASTER_TCP_PORT}:${TASKMASTER_TCP_PORT}
     volumes:
-      - ./resources:/taskmaster/resources
+      - ./resources:/taskmasterd/resources
