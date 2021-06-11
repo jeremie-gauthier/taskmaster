@@ -37,7 +37,7 @@ const readFromConn = async (TCPMsg: TCPMessage) => {
   const TCP_PORT = getTcpPort();
   if (isNull(TCP_PORT)) return 1;
 
-  const pathname = Deno.args[1];
+  const pathname = Deno.args[0];
   ConfigFile.getInstance(pathname);
   Processes.getInstance().buildFromConfigFile();
 
