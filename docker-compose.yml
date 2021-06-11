@@ -1,0 +1,13 @@
+version: "3.9"
+services: 
+  taskmasterd:
+    # usually don't need to precise .env as it is the default value
+    # I set it up for educational purpose, to be more verbose
+    env_file: .env
+    build: 
+      context: .
+      dockerfile: docker/server/Dockerfile
+    ports: 
+      - ${TASKMASTER_TCP_PORT}:${TASKMASTER_TCP_PORT}
+    volumes:
+      - ./resources:/taskmaster/resources
