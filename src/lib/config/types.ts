@@ -45,7 +45,9 @@ export type ProcessConfig = Partial<{
   env: EnvVars;
 }>;
 
+export type Programs = Record<string, ProcessConfig>;
+
 export type Configuration = {
   logFile: string;
-  programs: Record<string, ProcessConfig>[];
+  programs: Programs;
 };

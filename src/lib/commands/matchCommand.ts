@@ -1,4 +1,4 @@
-// import Command from "./Command.class.ts";
+import Reload from "./Reload.class.ts";
 import Restart from "./Restart.class.ts";
 import Start from "./Start.class.ts";
 import Stop from "./Stop.class.ts";
@@ -11,6 +11,8 @@ const matchCommand = (cmd: string) => {
       return Restart;
     case Stop.name.toLowerCase():
       return Stop;
+    case Reload.name.toLowerCase():
+      return Reload;
     default:
       return null;
   }

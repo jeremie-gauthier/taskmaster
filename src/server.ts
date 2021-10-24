@@ -24,7 +24,7 @@ const readFromConn = async (TCPMsg: TCPMessage) => {
       continue;
     }
 
-    const cmdResponse = new Command(args).exec();
+    const cmdResponse = await new Command(args).exec();
     TCPMsg.write(cmdResponse);
   }
 };
@@ -39,7 +39,8 @@ const readFromConn = async (TCPMsg: TCPMessage) => {
   if (isNull(TCP_PORT)) return 1;
 
   const pathname = Deno.args[0];
-  ConfigFile.getInstance(pathname);
+  const configFile = ConfigFile.getInstance(pathname);
+  await configFile.loadConfigFile();
   Processes.getInstance().buildFromConfigFile();
 
   const listener = new TCPListener(TCP_PORT);

@@ -6,7 +6,11 @@
     },
     "bar": {
       "cmd": "/bin/cat",
-      "autoStart": true
+      "autoStart": true,
+      "env": {
+        "ENV": "production",
+        "PORT": 99999
+      }
     }
   }
 }

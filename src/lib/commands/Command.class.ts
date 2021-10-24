@@ -7,7 +7,7 @@ export default abstract class Command {
     this.parseArgs(args);
   }
 
-  abstract exec(): string;
+  abstract exec(): string | Promise<string>;
   abstract usage(): string;
 
   parseArgs(args: string[]) {

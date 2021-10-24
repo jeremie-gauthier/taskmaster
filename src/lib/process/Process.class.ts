@@ -58,7 +58,15 @@ export default class Process {
     }
 
     // format args (from config file) for Deno
-    const cmd = this._config.cmd?.split(/\s+/) ?? [];
+    const command = this.config.cmd?.split(/\s+/) ?? [];
+    const env = this.config.env
+      ? [
+        "env",
+        ...Object.entries(this.config.env).map((entry) => entry.join("=")),
+      ]
+      : [];
+    const cmd = [...env, ...command];
+    console.log(cmd);
     this.handle = Deno.run({ cmd });
 
     return `${this.name}: started`;
