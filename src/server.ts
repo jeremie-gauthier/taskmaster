@@ -15,21 +15,17 @@ const handleConn = async (TCPMsg: TCPMessage) => {
 const readFromConn = async (TCPMsg: TCPMessage) => {
   const jsonMessages = TCPMsg.iterRead();
 
-  for await (const { msg, payload } of jsonMessages) {
-    // exec cmd
-    // console.log("received", msg, payload);
+  for await (const { msg } of jsonMessages) {
     const [cmd, ...args] = msg.split(/\s+/);
+
     const Command = matchCommand(cmd);
     if (!Command) {
       TCPMsg.write(`${cmd}: command not found`);
       continue;
     }
+
     const cmdResponse = new Command(args).exec();
     TCPMsg.write(cmdResponse);
-
-    if (msg === "exit") {
-      return;
-    }
   }
 };
 
