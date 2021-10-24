@@ -57,7 +57,7 @@ export default class TCPMessage {
         }
         const rawMessage = TCPMessage.Decoder.decode(buffer);
         const message = rawMessage.substr(0, nBytesRead ?? 0);
-        console.log(`|${message}|${nBytesRead}`);
+        // console.log(`|${message}|${nBytesRead}`);
         yield JSON.parse(message);
       } catch (error) {
         console.error(`[-] Cannot read TCP message (${error})`);

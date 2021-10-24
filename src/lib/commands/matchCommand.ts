@@ -1,11 +1,13 @@
-import Command from "./Command.class.ts";
+// import Command from "./Command.class.ts";
 import Start from "./Start.class.ts";
 
-const matchCommand = (str: string): Command | null => {
-  console.log(Start.name);
-  switch (str) {
+const matchCommand = (cmd: string): any => {
+  // console.log(Start.name);
+
+  // let cmdResponse: string;
+  switch (cmd.toLowerCase()) {
     case Start.name.toLowerCase():
-      return new Start();
+      return Start;
     default:
       return null;
   }

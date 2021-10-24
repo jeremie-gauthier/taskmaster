@@ -17,14 +17,19 @@ const readFromConn = async (TCPMsg: TCPMessage) => {
 
   for await (const { msg, payload } of jsonMessages) {
     // exec cmd
-    console.log("received", msg, payload);
-    const cmd = matchCommand(msg);
-    console.log(cmd);
+    // console.log("received", msg, payload);
+    const [cmd, ...args] = msg.split(/\s+/);
+    const Command = matchCommand(cmd);
+    if (!Command) {
+      TCPMsg.write(`${cmd}: command not found`);
+      continue;
+    }
+    const cmdResponse = new Command(args).exec();
+    TCPMsg.write(cmdResponse);
 
     if (msg === "exit") {
       return;
     }
-    TCPMsg.write(`You sent me: ${msg}`);
   }
 };
 

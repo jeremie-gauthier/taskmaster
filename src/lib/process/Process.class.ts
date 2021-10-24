@@ -24,4 +24,8 @@ export default class Process {
   get handle() {
     return this._handle;
   }
+
+  set handle(handle: Deno.Process | null) {
+    this._handle = handle;
+  }
 }
