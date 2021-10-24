@@ -5,7 +5,8 @@
       "cmd": "/bin/ls /tmp"
     },
     "bar": {
-      "cmd": "/bin/cat"
+      "cmd": "/bin/cat",
+      "autoStart": true
     }
   }
 }
