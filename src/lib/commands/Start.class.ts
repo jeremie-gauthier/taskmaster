@@ -1,32 +1,38 @@
 import Command from "./Command.class.ts";
 import Container from "../process/Container.class.ts";
+import { isEmpty } from "../utils/index.ts";
 
 export default class Start extends Command {
-  private args: string[];
-
   constructor(args: string[]) {
-    super();
-    this.args = args;
-    return this;
+    super(args);
   }
 
-  parseArgs() {}
-
   exec() {
-    const Processes = Container.getInstance().processes;
-    const [processName] = this.args;
-    const process = Processes[processName];
-    if (!process) {
-      return "Le process n'existe pas";
+    if (isEmpty(this.args)) {
+      return this.usage();
     }
-    const cmd = process.config.cmd?.split(/\s+/) ?? [];
-    const handle = Deno.run({ cmd });
-    process.handle = handle;
-    // console.log(Container.getInstance().processes[this.args[0]]);
-    return `${processName}: started`;
+
+    const Processes = Container.getInstance().processes;
+    const processResponses: string[] = [];
+
+    for (const arg of this.args) {
+      const currentProcess = Processes[arg];
+      if (!currentProcess) {
+        processResponses.push(`${arg}: not found`);
+      }
+
+      // format args (from config file) for Deno
+      const cmd = currentProcess.config.cmd?.split(/\s+/) ?? [];
+      const handle = Deno.run({ cmd });
+
+      // bind the subprocess handler for later calls
+      currentProcess.handle = handle;
+      processResponses.push(`${arg}: started`);
+    }
+    return processResponses.join("\n");
   }
 
   usage() {
-    return "start";
+    return "start <process_name>";
   }
 }

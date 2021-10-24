@@ -27,5 +27,16 @@ export default class Process {
 
   set handle(handle: Deno.Process | null) {
     this._handle = handle;
+
+    if (handle) {
+      handle.status().then(({ success, code, signal }) => {
+        if (success) {
+          this._status = "EXITED";
+          this._handle = null;
+        }
+      });
+    } else {
+      this._status = "STOPPED";
+    }
   }
 }
