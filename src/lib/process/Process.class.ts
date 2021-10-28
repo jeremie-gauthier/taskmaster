@@ -75,6 +75,7 @@ export default class Process {
         this.config.workingDir,
       ]
       : null;
+    const umask = this.config.umask ? ["umask", this.config.umask] : null;
     const env = this.config.env
       ? [
         "env",
@@ -83,6 +84,7 @@ export default class Process {
       : [];
     const cmd = [
       ...(directory ? [...directory, "&&"] : []),
+      ...(umask ? [...umask, "&&"] : []),
       ...env,
       ...command,
     ];

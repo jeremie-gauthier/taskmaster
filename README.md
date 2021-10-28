@@ -125,4 +125,4 @@ suit, pour chaque programme cela doit être supervisé :
   fichiers
 - [x] Des variables d’environnement a set avant de lancer le programme
 - [x] Un répertoire de travail a set avant de lancer le programme
-- [ ] Un umask a set avant de lancer le programme7
+- [x] Un umask a set avant de lancer le programme
