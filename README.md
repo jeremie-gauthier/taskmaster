@@ -98,10 +98,10 @@ Le shell devra au moins autoriser l’utilisateur à :
   configuration (avec la commande "status")
 - [x] Lancer les programmes
 - [ ] Arrêter les programmes
-- [ ] Relancer les programmes
+- [ ] Relancer les programmes # NECESSITE STOP
 - [ ] Recharger le fichier de configuration sans que le programme principal
-  s’arrête
-- [ ] Arrêter le programme principal
+  s’arrête # NECESSITE STOP
+- [ ] Arrêter le programme principal # NECESSITE STOP
 
 Le fichier de configuration doit autoriser l’utilisateur à spécifier ce qui
 suit, pour chaque programme cela doit être supervisé :
@@ -116,9 +116,9 @@ suit, pour chaque programme cela doit être supervisé :
   quel’on considère qu’il s’est "lancé correctement"
 - [x] Combien de fois un redémarrage doit être réalisé avant de s’arrêter
 - [ ] Quel signal doit être utilisé pour arrêter (i.e. exit gracefully) le
-  programme
+  programme # (`this.handle.kill(signal: number)`) NECESSITE STOP
 - [ ] Combien de temps d’attente après un graceful stop avant de kill le
-  programme
+  programme # NECESSITE STOP
 - [ ] Options pour retirer les stdout du programme ou pour rediriger vers des
   fichiers
 - [ ] Options pour retirer les stderr du programme ou pour rediriger vers des
