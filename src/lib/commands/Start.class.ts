@@ -7,24 +7,26 @@ export default class Start extends Command {
     super(args);
   }
 
-  exec() {
+  async exec() {
     if (isEmpty(this.args)) {
       return this.usage();
     }
 
     const processes = Processes.getInstance().processes;
-    const processResponses: string[] = [];
+    const processResponses: (Promise<string> | string)[] = [];
 
     for (const arg of this.args) {
       const currentProcess = processes[arg];
 
       if (currentProcess) {
-        processResponses.push(currentProcess.start());
+        processResponses.push(currentProcess.start(Command.FROM_USER));
       } else {
         processResponses.push(`${arg}: not found`);
       }
     }
-    return processResponses.join("\n");
+    const allResponses = await Promise.all(processResponses);
+
+    return allResponses.join("\n");
   }
 
   usage() {

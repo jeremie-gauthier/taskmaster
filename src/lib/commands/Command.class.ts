@@ -3,6 +3,8 @@ import Container from "../process/Container.class.ts";
 export default abstract class Command {
   protected args: string[] = [];
 
+  static FROM_USER = true;
+
   constructor(args: string[]) {
     this.parseArgs(args);
   }

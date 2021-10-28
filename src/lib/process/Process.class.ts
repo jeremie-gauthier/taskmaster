@@ -1,4 +1,5 @@
 import type { ProcessConfig } from "../config/types.ts";
+import { ellapsedTime, secondsToMillis } from "../utils/date.ts";
 import type { ProcessStatus } from "./types.ts";
 
 export default class Process {
@@ -50,27 +51,43 @@ export default class Process {
   }
 
   set handle(handle: Deno.Process | null) {
+    if (this._handle) {
+      this._handle.close();
+    }
+
     this._handle = handle;
 
     if (handle) {
-      this._status = "RUNNING";
+      this._status = "STARTING";
       this._lastTimeEvent = new Date();
-      handle.status().then(({ success, code, signal }) => {
-        if (success) {
-          this._status = "EXITED";
-          this._lastTimeEvent = new Date();
-          this._handle = null;
-        }
-      });
     } else {
       this._lastTimeEvent = new Date();
       this._status = "STOPPED";
     }
   }
 
-  start() {
-    if (this._status === "RUNNING") {
+  waitHealthyState = () =>
+    new Promise<Deno.ProcessStatus>((resolve) =>
+      setTimeout(resolve, secondsToMillis(this.config.startTime), {
+        success: true,
+      })
+    );
+
+  async start(commandFromUser = false): Promise<string> {
+    if (this._status === "RUNNING" || this._status === "STARTING") {
       return `${this.name}: ERROR (already started)`;
+    }
+
+    if (commandFromUser) {
+      this._startRetries = 0;
+    } else {
+      this._startRetries += 1;
+    }
+
+    const canRetry = this._startRetries <= this.config.startRetries;
+    if (!canRetry) {
+      this._status = "FATAL";
+      return `${this.name}: ERROR (spawn error)`;
     }
 
     // format args (from config file) for Deno
@@ -82,8 +99,26 @@ export default class Process {
       ]
       : [];
     const cmd = [...env, ...command];
-    console.log(cmd);
     this.handle = Deno.run({ cmd });
+
+    await Promise.race([this.handle.status(), this.waitHealthyState()]);
+
+    const isBackOff =
+      ellapsedTime(this._lastTimeEvent!) < this.config.startTime;
+
+    if (isBackOff) {
+      this._status = "BACKOFF";
+      return this.start();
+    }
+
+    const { success, code, signal } = await this.handle.status();
+
+    this._lastTimeEvent = new Date();
+    this._handle = null;
+
+    if (success) {
+      this._status = "EXITED";
+    }
 
     return `${this.name}: started`;
   }
