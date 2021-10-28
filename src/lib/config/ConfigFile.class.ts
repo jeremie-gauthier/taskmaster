@@ -1,5 +1,5 @@
 import { isUndefined } from "../utils/index.ts";
-import { Configuration } from "./types.ts";
+import { Configuration, Programs } from "./types.ts";
 export default class ConfigFile {
   private pathname: string;
   private _config: Configuration | null = null;
@@ -30,16 +30,24 @@ export default class ConfigFile {
       }
     };
 
+    const programsCheck = (programs: Programs) => {
+      for (const [progName, progConfig] of Object.entries(programs)) {
+        if (!progConfig.cmd) {
+          throw new Error(
+            `Error program ${progName} does not specify a cmd in section 'programs:${progName}' (file: '${this.pathname}')`,
+          );
+        }
+      }
+    };
+
     try {
       const configFileContent = await Deno.readTextFile(this.pathname);
       const config = JSON.parse(configFileContent) as Record<string, unknown>;
       integrityCheck(config);
-      // console.log(`[*] Load config from file '${this.pathname}'`);
       this._config = config as Configuration;
+      programsCheck(this._config.programs);
     } catch (error) {
-      console.error(
-        `[-] Cannot read file '${this.pathname}' (${error.message})`,
-      );
+      console.error(`[-] ${error.message}`);
       Deno.exit(1);
     }
   }
