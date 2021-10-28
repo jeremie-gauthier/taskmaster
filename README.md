@@ -109,7 +109,7 @@ suit, pour chaque programme cela doit être supervisé :
 - [x] La commande à utiliser pour lancer le programme
 - [x] Le nombre de processus à lancer et laisser tourner
 - [x] Choisir de lancer ce programme au démarrage ou non
-- [ ] Choisir si le programme doit toujours être relancé, jamais, ou uniquement
+- [x] Choisir si le programme doit toujours être relancé, jamais, ou uniquement
   lorsqu’ils’arrête de manière innatendue
 - [x] Quel code de retour represente une sortie "attendue" du programme
 - [x] Combien de temps le programme doit-il tourner après son démarrage pour

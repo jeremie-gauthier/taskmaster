@@ -19,7 +19,9 @@ export default class Start extends Command {
       const currentProcess = processes[arg];
 
       if (currentProcess) {
-        processResponses.push(currentProcess.start(Command.FROM_USER));
+        processResponses.push(
+          currentProcess.start({ commandFromUser: Command.FROM_USER }),
+        );
       } else {
         processResponses.push(`${arg}: not found`);
       }

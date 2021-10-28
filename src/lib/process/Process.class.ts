@@ -2,6 +2,10 @@ import type { ProcessConfig } from "../config/types.ts";
 import { ellapsedTime, secondsToMillis } from "../utils/date.ts";
 import type { ProcessStatus } from "./types.ts";
 
+type AutoRestartCtx = {
+  exitCode: Deno.ProcessStatus["code"];
+  startupProcess: boolean;
+};
 export default class Process {
   private readonly name: string;
   private _config: ProcessConfig;
@@ -30,7 +34,7 @@ export default class Process {
     this.name = name;
     this._config = config;
     if (config.autoStart) {
-      this.start();
+      this.start({ startupProcess: true });
     }
   }
 
@@ -91,18 +95,66 @@ export default class Process {
     return ["bash", "-c", cmd.join(" ")];
   }
 
-  waitHealthyState = () =>
+  private isUnexpectedExitCode = (exitCode: number) =>
+    !this.config.exitCodes.includes(exitCode);
+
+  private waitHealthyState = () =>
     new Promise<Deno.ProcessStatus>((resolve) =>
       setTimeout(resolve, secondsToMillis(this.config.startTime), {
         success: true,
       })
     );
 
-  async start(commandFromUser = false): Promise<string> {
+  private autoRestart = (
+    { exitCode, startupProcess }: AutoRestartCtx,
+  ): Promise<string> => {
+    console.log("AUTO RESTART::", exitCode, startupProcess);
+
+    if (startupProcess) {
+      return this.start({ startupProcess });
+    }
+
+    // else
+    switch (this.config.autoRestart) {
+      case "always":
+        return this.start({});
+      case "unexpected":
+        if (this.isUnexpectedExitCode(exitCode)) {
+          return this.start({});
+        }
+    }
+
+    let exitMsg = "";
+    // default and never case are same process
+    switch (this.status) {
+      case "BACKOFF":
+        exitMsg = "ERROR (spawn error)";
+        break;
+      default:
+        exitMsg = `--> ${this.status}`;
+    }
+    return new Promise((resolve) => resolve(exitMsg));
+  };
+
+  private onProcessExit = (
+    { success, code, signal }: Deno.ProcessStatus,
+    startupProcess: boolean,
+  ) => {
+    console.log("HANDLE::", success, code, signal);
+
+    this._lastTimeEvent = new Date();
+    this._handle = null;
+    this._status = success ? "EXITED" : "FATAL";
+
+    return this.autoRestart({ exitCode: code, startupProcess });
+  };
+
+  async start(
+    { commandFromUser = false, startupProcess = false },
+  ): Promise<string> {
     if (this._status === "RUNNING" || this._status === "STARTING") {
       return `${this.name}: ERROR (already started)`;
     }
-
     if (commandFromUser) {
       this._startRetries = 0;
     } else {
@@ -117,28 +169,22 @@ export default class Process {
 
     this.handle = Deno.run({ cmd: this.getStartCommand() });
 
-    await Promise.race([this.handle.status(), this.waitHealthyState()]);
+    const { code: exitCode } = await Promise.race([
+      this.handle.status(),
+      this.waitHealthyState(),
+    ]);
 
     const isBackOff =
       ellapsedTime(this._lastTimeEvent!) < this.config.startTime;
 
     if (isBackOff) {
       this._status = "BACKOFF";
-      return this.start();
+      return this.autoRestart({ exitCode, startupProcess });
     }
 
-    this.handle.status().then(({ success, code, signal }) => {
-      console.log("HANDLE::", success);
-
-      this._lastTimeEvent = new Date();
-      this._handle = null;
-
-      if (success) {
-        this._status = "EXITED";
-      } else {
-        this._status = "FATAL";
-      }
-    });
+    this.handle.status().then((processStatus) =>
+      this.onProcessExit(processStatus, startupProcess)
+    );
 
     return `${this.name}: started`;
   }
