@@ -10,7 +10,8 @@
       "env": {
         "ENV": "production",
         "PORT": 99999
-      }
+      },
+      "numProcs": 2
     }
   }
 }

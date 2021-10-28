@@ -33,7 +33,20 @@ export default class Container {
     try {
       const processes = Object.entries(configFile.programs as Programs);
       for (const [processName, processConfig] of processes) {
-        this.add(processName, processConfig);
+        const processConfigWithDefaults = {
+          ...Process.DEFAULT_CONFIG,
+          ...processConfig,
+        };
+
+        const { numProcs } = processConfigWithDefaults;
+
+        if (numProcs === 1) {
+          this.add(processName, processConfigWithDefaults);
+        } else {
+          for (let nProc = 0; nProc < numProcs; nProc++) {
+            this.add(`${processName}_${nProc}`, processConfigWithDefaults);
+          }
+        }
       }
     } catch (error) {
       console.error(`[-] Error while building processes (${error})`);
@@ -52,31 +65,32 @@ export default class Container {
     // TODO: tester en supprimant le contenu du fichier
 
     try {
-      const newConfig = ConfigFile.getInstance().config as Programs;
-      const newPrograms = newConfig.programs as Programs;
-      const newProgramsEntries = Object.entries(newConfig.programs as Programs);
+      const newConfig = ConfigFile.getInstance().config!;
+      const newPrograms = newConfig.programs;
+      const newProgramsEntries = Object.entries(newConfig.programs);
 
       const oldPrograms = this.processes;
       const oldProgramsEntries = Object.entries(oldPrograms);
 
-      // on check les anciennes valeurs pour voir lesquelles update
+      // compare old prog name with new entries
+      //  to know which ones need to be removed
       for (const [oldProgName] of oldProgramsEntries) {
-        const oldProgRemoved = isNone(newPrograms[oldProgName]);
-        if (oldProgRemoved) {
-          // stopper l'ancien prog et le supprimer de la liste
+        if (isNone(newPrograms[oldProgName])) {
+          this.remove(oldProgName);
         }
       }
 
+      // compare new entries with old ones
+      //  to know which ones need to be update / delete
       for (const [newProgName, newProgConfig] of newProgramsEntries) {
         const isNewProg = isNone(oldPrograms[newProgName]);
 
         if (isNewProg) {
-          // creer nouveau prog
-          console.log(newProgName, "is a new program");
+          this.add(newProgName, newProgConfig);
         } else {
           const oldProgConfig = oldPrograms[newProgName]?.config;
           if (this.progsDiff(newProgConfig, oldProgConfig)) {
-            // rewrite the config
+            // update the config without restarting prog
             console.log(newProgName, "config rewritten");
             if (this.progMustReload(newProgConfig, oldProgConfig)) {
               // restart prog here
@@ -85,6 +99,8 @@ export default class Container {
           }
         }
       }
+
+      console.log(ConfigFile.getInstance().config?.programs);
     } catch (error) {
       console.error(`[-] Error while building processes (${error})`);
     }
@@ -120,7 +136,17 @@ export default class Container {
 
   add(processName: string, processConfig: ProcessConfig) {
     if (this.integrityCheck(processName, processConfig)) {
+      console.log(`[+] ADD: ${processName} to the list of programs`);
       this.processes[processName] = new Process(processName, processConfig);
+    }
+  }
+
+  remove(processName: string) {
+    const process = this.processes[processName];
+    if (process) {
+      // process.stop()
+      console.log(`[+] REMOVE: ${processName} from the list of programs`);
+      delete this.processes[processName];
     }
   }
 }
