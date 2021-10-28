@@ -127,19 +127,18 @@ export default class Process {
       return this.start();
     }
 
-    const { success, code, signal } = await this.handle.status();
+    this.handle.status().then(({ success, code, signal }) => {
+      console.log("HANDLE::", success);
 
-    this._lastTimeEvent = new Date();
-    this._handle = null;
+      this._lastTimeEvent = new Date();
+      this._handle = null;
 
-    if (success) {
-      this._status = "EXITED";
-    } else {
-      this._status = "FATAL";
-      if (!this.config.exitCodes.includes(code)) {
-        return this.start();
+      if (success) {
+        this._status = "EXITED";
+      } else {
+        this._status = "FATAL";
       }
-    }
+    });
 
     return `${this.name}: started`;
   }
