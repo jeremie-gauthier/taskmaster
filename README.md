@@ -117,7 +117,7 @@ suit, pour chaque programme cela doit être supervisé :
 - [x] Combien de fois un redémarrage doit être réalisé avant de s’arrêter
 - [x] Quel signal doit être utilisé pour arrêter (i.e. exit gracefully) le
   programme # (`this.handle.kill(signal: number)`) NECESSITE STOP
-- [ ] Combien de temps d’attente après un graceful stop avant de kill le
+- [x] Combien de temps d’attente après un graceful stop avant de kill le
   programme # NECESSITE STOP
 - [ ] Options pour retirer les stdout du programme ou pour rediriger vers des
   fichiers

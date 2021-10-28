@@ -6,6 +6,7 @@ type AutoRestartCtx = {
   exitCode: Deno.ProcessStatus["code"];
   startupProcess: boolean;
 };
+
 export default class Process {
   private readonly name: string;
   private _config: ProcessConfig;
@@ -192,7 +193,7 @@ export default class Process {
     return `${this.name}: started`;
   }
 
-  stop() {
+  async stop() {
     if (
       ["FATAL", "EXITED", "STOPPED"].includes(this.status) || !this.handle
     ) {
@@ -202,6 +203,19 @@ export default class Process {
     const signal: Signal = this.config.stopSignal ?? "TERM";
     const signo = SignalCode[signal];
     this.handle.kill(signo);
+
+    const stopTimeMs = secondsToMillis(this.config.stopTime);
+    const sig = Deno.signal(SignalCode["CHLD"]);
+    const tid = setTimeout(() => {
+      sig.dispose();
+      this.handle?.kill(SignalCode["KILL"]);
+    }, stopTimeMs);
+
+    for await (const _ of sig) {
+      sig.dispose();
+      clearTimeout(tid);
+    }
+
     this.handle = null;
     return `${this.name}: stopped`;
   }
