@@ -9,6 +9,22 @@ export default class Process {
   private _lastTimeEvent: Date | null = null;
   private _handle: Deno.Process<Deno.RunOptions> | null = null;
 
+  static DEFAULT_CONFIG: Omit<ProcessConfig, "cmd"> = {
+    numProcs: 1,
+    autoStart: true,
+    autoRestart: "unexpected",
+    exitCodes: [0],
+    startTime: 1,
+    startRetries: 3,
+    stopSignal: "TERM",
+    stopTime: 10,
+    stdout: "/dev/stdout", // not sure of this one
+    stderr: "/dev/stder", // not sure of this one
+    env: {},
+    workingDir: null,
+    umask: null,
+  };
+
   constructor(name: string, config: ProcessConfig) {
     this.name = name;
     this._config = config;
