@@ -117,16 +117,12 @@ export default class Process {
 
     this.handle = Deno.run({ cmd: this.getStartCommand() });
 
-    const r = await Promise.race([
-      this.handle.status(),
-      this.waitHealthyState(),
-    ]);
+    await Promise.race([this.handle.status(), this.waitHealthyState()]);
 
     const isBackOff =
       ellapsedTime(this._lastTimeEvent!) < this.config.startTime;
 
     if (isBackOff) {
-      console.log("is back offj");
       this._status = "BACKOFF";
       return this.start();
     }
@@ -138,6 +134,11 @@ export default class Process {
 
     if (success) {
       this._status = "EXITED";
+    } else {
+      this._status = "FATAL";
+      if (!this.config.exitCodes.includes(code)) {
+        return this.start();
+      }
     }
 
     return `${this.name}: started`;

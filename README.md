@@ -111,10 +111,10 @@ suit, pour chaque programme cela doit être supervisé :
 - [x] Choisir de lancer ce programme au démarrage ou non
 - [ ] Choisir si le programme doit toujours être relancé, jamais, ou uniquement
   lorsqu’ils’arrête de manière innatendue
-- [ ] Quel code de retour represente une sortie "attendue" du programme
+- [x] Quel code de retour represente une sortie "attendue" du programme
 - [x] Combien de temps le programme doit-il tourner après son démarrage pour
   quel’on considère qu’il s’est "lancé correctement"
-- [ ] Combien de fois un redémarrage doit être réalisé avant de s’arrêter
+- [x] Combien de fois un redémarrage doit être réalisé avant de s’arrêter
 - [ ] Quel signal doit être utilisé pour arrêter (i.e. exit gracefully) le
   programme
 - [ ] Combien de temps d’attente après un graceful stop avant de kill le
