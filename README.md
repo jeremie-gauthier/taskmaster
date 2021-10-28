@@ -89,3 +89,40 @@ The `server` is a daemon, it receives user inputs, treat them and returns a
 
 - `client.ts`
 - `server.ts`
+
+### Features
+
+Le shell devra au moins autoriser l’utilisateur à :
+
+- [ ] Voir le statut de tous les programmes décris dans le fichier de
+  configuration (avec la commande "status")
+- [x] Lancer les programmes
+- [ ] Arrêter les programmes
+- [ ] Relancer les programmes
+- [ ] Recharger le fichier de configuration sans que le programme principal
+  s’arrête
+- [ ] Arrêter le programme principal
+
+Le fichier de configuration doit autoriser l’utilisateur à spécifier ce qui
+suit, pour chaque programme cela doit être supervisé :
+
+- [x] La commande à utiliser pour lancer le programme
+- [x] Le nombre de processus à lancer et laisser tourner
+- [x] Choisir de lancer ce programme au démarrage ou non
+- [ ] Choisir si le programme doit toujours être relancé, jamais, ou uniquement
+  lorsqu’ils’arrête de manière innatendue
+- [ ] Quel code de retour represente une sortie "attendue" du programme
+- [x] Combien de temps le programme doit-il tourner après son démarrage pour
+  quel’on considère qu’il s’est "lancé correctement"
+- [ ] Combien de fois un redémarrage doit être réalisé avant de s’arrêter
+- [ ] Quel signal doit être utilisé pour arrêter (i.e. exit gracefully) le
+  programme
+- [ ] Combien de temps d’attente après un graceful stop avant de kill le
+  programme
+- [ ] Options pour retirer les stdout du programme ou pour rediriger vers des
+  fichiers
+- [ ] Options pour retirer les stderr du programme ou pour rediriger vers des
+  fichiers
+- [x] Des variables d’environnement a set avant de lancer le programme
+- [x] Un répertoire de travail a set avant de lancer le programme
+- [ ] Un umask a set avant de lancer le programme7

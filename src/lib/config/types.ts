@@ -40,7 +40,7 @@ export type ProcessConfig = {
   stopTime: number; // time to wait after stop to kill the prog
   stdout: string; // where to redirect stdout
   stderr: string; // where to redirect stderr
-  env: EnvVars; // env vars to set before prog start
+  env: EnvVars | null; // env vars to set before prog start
   workingDir: string | null; // working dir to set before prog start
   umask: string | null; // umask to set before prog start
 };

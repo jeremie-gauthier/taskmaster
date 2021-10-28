@@ -21,7 +21,7 @@ export default class Process {
     stopTime: 10,
     stdout: "/dev/stdout", // not sure of this one
     stderr: "/dev/stder", // not sure of this one
-    env: {},
+    env: null,
     workingDir: null,
     umask: null,
   };
@@ -66,6 +66,29 @@ export default class Process {
     }
   }
 
+  // format args (from config file) for Deno
+  getStartCommand() {
+    const command = this.config.cmd?.split(/\s+/) ?? [];
+    const directory = this.config.workingDir
+      ? [
+        "cd",
+        this.config.workingDir,
+      ]
+      : null;
+    const env = this.config.env
+      ? [
+        "env",
+        ...Object.entries(this.config.env).map((entry) => entry.join("=")),
+      ]
+      : [];
+    const cmd = [
+      ...(directory ? [...directory, "&&"] : []),
+      ...env,
+      ...command,
+    ];
+    return ["bash", "-c", cmd.join(" ")];
+  }
+
   waitHealthyState = () =>
     new Promise<Deno.ProcessStatus>((resolve) =>
       setTimeout(resolve, secondsToMillis(this.config.startTime), {
@@ -90,23 +113,18 @@ export default class Process {
       return `${this.name}: ERROR (spawn error)`;
     }
 
-    // format args (from config file) for Deno
-    const command = this.config.cmd?.split(/\s+/) ?? [];
-    const env = this.config.env
-      ? [
-        "env",
-        ...Object.entries(this.config.env).map((entry) => entry.join("=")),
-      ]
-      : [];
-    const cmd = [...env, ...command];
-    this.handle = Deno.run({ cmd });
+    this.handle = Deno.run({ cmd: this.getStartCommand() });
 
-    await Promise.race([this.handle.status(), this.waitHealthyState()]);
+    const r = await Promise.race([
+      this.handle.status(),
+      this.waitHealthyState(),
+    ]);
 
     const isBackOff =
       ellapsedTime(this._lastTimeEvent!) < this.config.startTime;
 
     if (isBackOff) {
+      console.log("is back offj");
       this._status = "BACKOFF";
       return this.start();
     }
