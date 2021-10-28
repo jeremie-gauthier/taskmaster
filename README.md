@@ -97,7 +97,7 @@ Le shell devra au moins autoriser l’utilisateur à :
 - [ ] Voir le statut de tous les programmes décris dans le fichier de
   configuration (avec la commande "status")
 - [x] Lancer les programmes
-- [ ] Arrêter les programmes
+- [x] Arrêter les programmes
 - [ ] Relancer les programmes # NECESSITE STOP
 - [ ] Recharger le fichier de configuration sans que le programme principal
   s’arrête # NECESSITE STOP
@@ -115,7 +115,7 @@ suit, pour chaque programme cela doit être supervisé :
 - [x] Combien de temps le programme doit-il tourner après son démarrage pour
   quel’on considère qu’il s’est "lancé correctement"
 - [x] Combien de fois un redémarrage doit être réalisé avant de s’arrêter
-- [ ] Quel signal doit être utilisé pour arrêter (i.e. exit gracefully) le
+- [x] Quel signal doit être utilisé pour arrêter (i.e. exit gracefully) le
   programme # (`this.handle.kill(signal: number)`) NECESSITE STOP
 - [ ] Combien de temps d’attente après un graceful stop avant de kill le
   programme # NECESSITE STOP

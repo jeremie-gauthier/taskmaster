@@ -1,4 +1,4 @@
-import type { ProcessConfig } from "../config/types.ts";
+import { ProcessConfig, Signal, SignalCode } from "../config/types.ts";
 import { ellapsedTime, secondsToMillis } from "../utils/date.ts";
 import type { ProcessStatus } from "./types.ts";
 
@@ -55,8 +55,8 @@ export default class Process {
   }
 
   set handle(handle: Deno.Process | null) {
-    if (this._handle) {
-      this._handle.close();
+    if (this.handle) {
+      this.handle.close();
     }
 
     this._handle = handle;
@@ -124,14 +124,12 @@ export default class Process {
         }
     }
 
-    let exitMsg = "";
+    let exitMsg = `--> ${this.status}`;
     // default and never case are same process
     switch (this.status) {
       case "BACKOFF":
         exitMsg = "ERROR (spawn error)";
         break;
-      default:
-        exitMsg = `--> ${this.status}`;
     }
     return new Promise((resolve) => resolve(exitMsg));
   };
@@ -143,8 +141,12 @@ export default class Process {
     console.log("HANDLE::", success, code, signal);
 
     this._lastTimeEvent = new Date();
-    this._handle = null;
+    this.handle = null;
     this._status = success ? "EXITED" : "FATAL";
+
+    if (signal) {
+      return `${this.name}: stopped`;
+    }
 
     return this.autoRestart({ exitCode: code, startupProcess });
   };
@@ -152,9 +154,10 @@ export default class Process {
   async start(
     { commandFromUser = false, startupProcess = false },
   ): Promise<string> {
-    if (this._status === "RUNNING" || this._status === "STARTING") {
+    if (["RUNNING", "STARTING"].includes(this.status)) {
       return `${this.name}: ERROR (already started)`;
     }
+
     if (commandFromUser) {
       this._startRetries = 0;
     } else {
@@ -187,5 +190,19 @@ export default class Process {
     );
 
     return `${this.name}: started`;
+  }
+
+  stop() {
+    if (
+      ["FATAL", "EXITED", "STOPPED"].includes(this.status) || !this.handle
+    ) {
+      return `${this.name}: ERROR (not running)`;
+    }
+
+    const signal: Signal = this.config.stopSignal ?? "TERM";
+    const signo = SignalCode[signal];
+    this.handle.kill(signo);
+    this.handle = null;
+    return `${this.name}: stopped`;
   }
 }

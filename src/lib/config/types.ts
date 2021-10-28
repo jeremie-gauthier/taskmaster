@@ -2,63 +2,72 @@
 //  then it's unexpected
 export type AutoRestart = "always" | "never" | "unexpected";
 
-export enum SignalCode {
-  HUP = 1,
-  INT = 2,
-  QUIT = 3,
-  ILL = 4,
-  TRAP = 5,
-  ABRT = 6,
-  EMT = 7,
-  FPE = 8,
-  KILL = 9,
-  BUS = 10,
-  SEGV = 11,
-  SYS = 12,
-  PIPE = 13,
-  ALRM = 14,
-  TERM = 15,
-  URG = 16,
-  STOP = 17,
-  TSTP = 18,
-  CONT = 19,
-  CHLD = 20,
-  TTIN = 21,
-  TTOU = 22,
-  IO = 23,
-  XCPU = 24,
-  XFSZ = 25,
-  VTALRM = 26,
-  PROF = 27,
-  WINCH = 28,
-  INFO = 29,
-  USR1 = 30,
-  USR2 = 31,
-}
+export const SignalCode: Record<Signal, number> = {
+  HUP: 1,
+  INT: 2,
+  QUIT: 3,
+  ILL: 4,
+  TRAP: 5,
+  ABRT: 6,
+  EMT: 7,
+  FPE: 8,
+  KILL: 9,
+  BUS: 10,
+  SEGV: 11,
+  SYS: 12,
+  PIPE: 13,
+  ALRM: 14,
+  TERM: 15,
+  URG: 16,
+  STOP: 17,
+  TSTP: 18,
+  CONT: 19,
+  CHLD: 20,
+  TTIN: 21,
+  TTOU: 22,
+  IO: 23,
+  XCPU: 24,
+  XFSZ: 25,
+  VTALRM: 26,
+  PROF: 27,
+  WINCH: 28,
+  INFO: 29,
+  USR1: 30,
+  USR2: 31,
+};
 
 export type Signal =
   | "HUP"
   | "INT"
   | "QUIT"
   | "ILL"
+  | "TRAP"
   | "ABRT"
+  | "EMT"
   | "FPE"
   | "KILL"
+  | "BUS"
   | "SEGV"
+  | "SYS"
   | "PIPE"
   | "ALRM"
   | "TERM"
-  | "USR1"
-  | "USR2"
-  | "CHLD"
+  | "URG"
   | "STOP"
-  | "STP"
+  | "TSTP"
+  | "CONT"
+  | "CHLD"
   | "TTIN"
   | "TTOU"
-  | "VTALRM"
+  | "IO"
   | "XCPU"
   | "XFSZ"
-  | "WINCH";
+  | "VTALRM"
+  | "PROF"
+  | "WINCH"
+  | "INFO"
+  | "USR1"
+  | "USR2";
 
 export type EnvVars = Record<string, string>;
 
