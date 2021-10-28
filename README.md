@@ -119,9 +119,9 @@ suit, pour chaque programme cela doit être supervisé :
   programme # (`this.handle.kill(signal: number)`) NECESSITE STOP
 - [x] Combien de temps d’attente après un graceful stop avant de kill le
   programme # NECESSITE STOP
-- [ ] Options pour retirer les stdout du programme ou pour rediriger vers des
+- [x] Options pour retirer les stdout du programme ou pour rediriger vers des
   fichiers
-- [ ] Options pour retirer les stderr du programme ou pour rediriger vers des
+- [x] Options pour retirer les stderr du programme ou pour rediriger vers des
   fichiers
 - [x] Des variables d’environnement a set avant de lancer le programme
 - [x] Un répertoire de travail a set avant de lancer le programme

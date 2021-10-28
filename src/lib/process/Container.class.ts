@@ -52,11 +52,11 @@ export default class Container {
       console.error(`[-] Error while building processes (${error})`);
     }
 
-    console.log(
-      `[*] Processes sucessfully built from config file:\n${
-        JSON.stringify(this.processes, null, 4)
-      }`,
-    );
+    // console.log(
+    //   `[*] Processes sucessfully built from config file:\n${
+    //     JSON.stringify(this.processes, null, 4)
+    //   }`,
+    // );
   }
 
   reloadFromConfigFile() {
@@ -136,7 +136,7 @@ export default class Container {
 
   add(processName: string, processConfig: ProcessConfig) {
     if (this.integrityCheck(processName, processConfig)) {
-      console.log(`[+] ADD: ${processName} to the list of programs`);
+      // console.log(`[+] ADD: ${processName} to the list of programs`);
       this.processes[processName] = new Process(processName, processConfig);
     }
   }
@@ -144,8 +144,8 @@ export default class Container {
   remove(processName: string) {
     const process = this.processes[processName];
     if (process) {
-      // process.stop()
-      console.log(`[+] REMOVE: ${processName} from the list of programs`);
+      process.stop();
+      // console.log(`[+] REMOVE: ${processName} from the list of programs`);
       delete this.processes[processName];
     }
   }

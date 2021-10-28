@@ -1,10 +1,17 @@
 import { ProcessConfig, Signal, SignalCode } from "../config/types.ts";
 import { ellapsedTime, secondsToMillis } from "../utils/date.ts";
 import type { ProcessStatus } from "./types.ts";
+import { copy } from "https://deno.land/std@0.104.0/io/util.ts";
 
 type AutoRestartCtx = {
   exitCode: Deno.ProcessStatus["code"];
   startupProcess: boolean;
+};
+
+const FILE_OPTIONS: Deno.OpenOptions = {
+  create: true,
+  write: true,
+  append: true,
 };
 
 export default class Process {
@@ -24,8 +31,8 @@ export default class Process {
     startRetries: 3,
     stopSignal: "TERM",
     stopTime: 10,
-    stdout: "/dev/stdout", // not sure of this one
-    stderr: "/dev/stder", // not sure of this one
+    stdout: null, // not sure of this one
+    stderr: null, // not sure of this one
     env: null,
     workingDir: null,
     umask: null,
@@ -65,14 +72,23 @@ export default class Process {
     if (handle) {
       this._status = "STARTING";
       this._lastTimeEvent = new Date();
+      if (this.config.stdout) {
+        Deno.open(this.config.stdout, FILE_OPTIONS).then((outFile) =>
+          copy(handle.stdout!, outFile)
+        );
+      }
+      if (this.config.stderr) {
+        Deno.open(this.config.stderr, FILE_OPTIONS).then((errFile) =>
+          copy(handle.stderr!, errFile)
+        );
+      }
     } else {
       this._lastTimeEvent = new Date();
       this._status = "STOPPED";
     }
   }
 
-  // format args (from config file) for Deno
-  getStartCommand() {
+  private getStartCommand() {
     const command = this.config.cmd?.split(/\s+/) ?? [];
     const directory = this.config.workingDir
       ? [
@@ -109,9 +125,12 @@ export default class Process {
   private autoRestart = (
     { exitCode, startupProcess }: AutoRestartCtx,
   ): Promise<string> => {
-    console.log("AUTO RESTART::", exitCode, startupProcess);
+    // console.log("AUTO RESTART::", exitCode, startupProcess);
 
-    if (startupProcess) {
+    if (
+      startupProcess &&
+      (this.isUnexpectedExitCode(exitCode) || this.status === "BACKOFF")
+    ) {
       return this.start({ startupProcess });
     }
 
@@ -139,7 +158,7 @@ export default class Process {
     { success, code, signal }: Deno.ProcessStatus,
     startupProcess: boolean,
   ) => {
-    console.log("HANDLE::", success, code, signal);
+    // console.log("HANDLE::", success, code, signal);
 
     this._lastTimeEvent = new Date();
     this.handle = null;
@@ -171,7 +190,11 @@ export default class Process {
       return `${this.name}: ERROR (spawn error)`;
     }
 
-    this.handle = Deno.run({ cmd: this.getStartCommand() });
+    this.handle = Deno.run({
+      cmd: this.getStartCommand(),
+      stdout: this.config.stdout ? "piped" : "inherit",
+      stderr: this.config.stderr ? "piped" : "inherit",
+    });
 
     const { code: exitCode } = await Promise.race([
       this.handle.status(),

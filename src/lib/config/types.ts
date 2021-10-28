@@ -81,8 +81,8 @@ export type ProcessConfig = {
   startRetries: number; // nb of retries to do before definitive stop
   stopSignal: Signal; // signal use to gracefully exit prog
   stopTime: number; // time to wait after stop to kill the prog
-  stdout: string; // where to redirect stdout
-  stderr: string; // where to redirect stderr
+  stdout: string | null; // where to redirect stdout
+  stderr: string | null; // where to redirect stderr
   env: EnvVars | null; // env vars to set before prog start
   workingDir: string | null; // working dir to set before prog start
   umask: string | null; // umask to set before prog start
