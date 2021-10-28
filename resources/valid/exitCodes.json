@@ -1,0 +1,11 @@
+{
+  "logFile": "./logs",
+  "programs": {
+    "foo": {
+      "cmd": "/bin/cat",
+      "startTime": 0,
+      "autoStart": false,
+      "exitCodes": [127]
+    }
+  }
+}

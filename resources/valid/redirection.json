@@ -1,0 +1,11 @@
+{
+  "logFile": "./logs",
+  "programs": {
+    "foo": {
+      "cmd": "while true; do echo lol; sleep 0.5; done",
+      "startTime": 0,
+      "autoStart": true,
+      "stdout": "./resources/test.txt"
+    }
+  }
+}

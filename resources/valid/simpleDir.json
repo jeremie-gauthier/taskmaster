@@ -1,0 +1,11 @@
+{
+  "logFile": "./logs",
+  "programs": {
+    "foo": {
+      "cmd": "/bin/pwd && touch test.txt",
+      "startTime": 0,
+      "workingDir": "./resources",
+      "umask": "0777"
+    }
+  }
+}

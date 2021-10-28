@@ -2,7 +2,8 @@
   "logFile": "./logs",
   "programs": {
     "foo": {
-      "cmd": "/bin/ls /tmp"
+      "cmd": "/bin/pwd",
+      "startTime": 0
     },
     "bar": {
       "cmd": "/bin/cat",
