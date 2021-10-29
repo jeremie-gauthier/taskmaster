@@ -32,6 +32,9 @@ export default class ConfigFile {
 
     const programsCheck = (programs: Programs) => {
       for (const [progName, progConfig] of Object.entries(programs)) {
+        if (!progName.match(/^\w+$/)) {
+          throw new Error(`Error program ${progName} is not a valid name`);
+        }
         if (!progConfig.cmd) {
           throw new Error(
             `Error program ${progName} does not specify a cmd in section 'programs:${progName}' (file: '${this.pathname}')`,

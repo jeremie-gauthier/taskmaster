@@ -50,6 +50,10 @@ export default class Process {
     return this._config;
   }
 
+  set config(config: ProcessConfig) {
+    this._config = config;
+  }
+
   get status() {
     return this._status;
   }
@@ -228,6 +232,7 @@ export default class Process {
     this.handle.kill(signo);
 
     const stopTimeMs = secondsToMillis(this.config.stopTime);
+    // @ts-ignore Deno.signal is an experimental feature
     const sig = Deno.signal(SignalCode["CHLD"]);
     const tid = setTimeout(() => {
       sig.dispose();

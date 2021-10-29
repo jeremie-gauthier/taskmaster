@@ -5,7 +5,8 @@
       "cmd": "/bin/cat",
       "startTime": 0,
       "autoStart": false,
-      "exitCodes": [127]
+      "exitCodes": [127],
+      "numProcs": 1
     }
   }
 }

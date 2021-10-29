@@ -9,7 +9,7 @@ export default class Reload extends Command {
 
   async exec() {
     await ConfigFile.getInstance().loadConfigFile();
-    Processes.getInstance().reloadFromConfigFile();
+    await Processes.getInstance().reloadFromConfigFile();
     return "Restarted taskmasterd";
   }
 
