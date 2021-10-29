@@ -16,7 +16,7 @@ const FILE_OPTIONS: Deno.OpenOptions = {
 };
 
 export default class Process {
-  private readonly name: string;
+  readonly name: string;
   private _config: ProcessConfig;
   private _status: ProcessStatus = "STOPPED";
   private _startRetries = 0;
@@ -57,6 +57,10 @@ export default class Process {
 
   get status() {
     return this._status;
+  }
+
+  get pid() {
+    return this._handle?.pid;
   }
 
   get lastTimeEvent() {

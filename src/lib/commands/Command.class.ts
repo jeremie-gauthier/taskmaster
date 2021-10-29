@@ -13,7 +13,7 @@ export default abstract class Command {
   abstract exec(): string | Promise<string>;
   abstract usage(): string;
 
-  private getAllProcessName() {
+  protected getAllProcessName() {
     const Processes = Container.getInstance().processes;
     const allProcessName = Object.keys(Processes);
     return allProcessName;

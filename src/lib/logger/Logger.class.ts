@@ -10,6 +10,15 @@ export default class Logger {
 
   private static instance: Logger;
 
+  private static TimeFormat = new Intl.DateTimeFormat("fr", {
+    year: "2-digit",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  }).format;
+
   private constructor(logFile: string) {
     this._logFile = Deno.openSync(logFile, {
       create: true,
@@ -43,25 +52,12 @@ export default class Logger {
     await this.info("Log file opened. Ready to register events.");
   }
 
-  private static getTime() {
-    const d = new Date();
-    const prefix = (n: number) => n < 10 ? `0${n}` : `${n}`;
-    const fmt = {
-      day: prefix(d.getDate()),
-      month: prefix(d.getMonth()),
-      year: prefix(d.getFullYear()),
-      hour: prefix(d.getHours()),
-      min: prefix(d.getMinutes()),
-      sec: prefix(d.getSeconds()),
-    };
-    return `${fmt.day}/${fmt.month}/${fmt.year}-${fmt.hour}:${fmt.min}:${fmt.sec}`;
-  }
-
   private write(msg: string) {
     if (!this._logFile) return;
 
-    const encodedMsg = Logger.Encoder.encode(`[${Logger.getTime()}] ${msg}\n`);
-    this._logFile.write(encodedMsg);
+    const date = Logger.TimeFormat(new Date());
+    const encodedMsg = Logger.Encoder.encode(`[${date}] ${msg}\n`);
+    return this._logFile.write(encodedMsg);
   }
 
   log(msg: string) {

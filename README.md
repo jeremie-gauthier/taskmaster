@@ -99,7 +99,7 @@ The `server` is a daemon, it receives user inputs, treat them and returns a
 
 Le shell devra au moins autoriser l’utilisateur à :
 
-- [ ] Voir le statut de tous les programmes décris dans le fichier de
+- [x] Voir le statut de tous les programmes décris dans le fichier de
   configuration (avec la commande "status")
 - [x] Lancer les programmes
 - [x] Arrêter les programmes
