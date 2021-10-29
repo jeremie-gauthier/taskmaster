@@ -92,6 +92,11 @@ The `server` is a daemon, it receives user inputs, treat them and returns a
 
 ### Features
 
+- [ ] La doit être rechargeable pendant que taskmaster est en train de tourner
+  en lui envoyant un SIGHUP
+- [x] Votre programme doit avoir un système de registres afin d’enregistrer les
+  évènementsdans un fichier local
+
 Le shell devra au moins autoriser l’utilisateur à :
 
 - [ ] Voir le statut de tous les programmes décris dans le fichier de

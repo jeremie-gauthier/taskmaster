@@ -2,6 +2,7 @@ import { ProcessConfig, Signal, SignalCode } from "../config/types.ts";
 import { ellapsedTime, secondsToMillis } from "../utils/date.ts";
 import type { ProcessStatus } from "./types.ts";
 import { copy } from "https://deno.land/std@0.104.0/io/util.ts";
+import Logger from "../logger/Logger.class.ts";
 
 type AutoRestartCtx = {
   exitCode: Deno.ProcessStatus["code"];
@@ -31,8 +32,8 @@ export default class Process {
     startRetries: 3,
     stopSignal: "TERM",
     stopTime: 10,
-    stdout: null, // not sure of this one
-    stderr: null, // not sure of this one
+    stdout: null,
+    stderr: null,
     env: null,
     workingDir: null,
     umask: null,
@@ -129,8 +130,6 @@ export default class Process {
   private autoRestart = (
     { exitCode, startupProcess }: AutoRestartCtx,
   ): Promise<string> => {
-    // console.log("AUTO RESTART::", exitCode, startupProcess);
-
     if (
       startupProcess &&
       (this.isUnexpectedExitCode(exitCode) || this.status === "BACKOFF")
@@ -162,8 +161,6 @@ export default class Process {
     { success, code, signal }: Deno.ProcessStatus,
     startupProcess: boolean,
   ) => {
-    // console.log("HANDLE::", success, code, signal);
-
     this._lastTimeEvent = new Date();
     this.handle = null;
     this._status = success ? "EXITED" : "FATAL";
@@ -172,6 +169,9 @@ export default class Process {
       return `${this.name}: stopped`;
     }
 
+    Logger.getInstance().info(
+      `Process [${this.name}] exitted (code: ${code}).`,
+    );
     return this.autoRestart({ exitCode: code, startupProcess });
   };
 
@@ -194,6 +194,7 @@ export default class Process {
       return `${this.name}: ERROR (spawn error)`;
     }
 
+    Logger.getInstance().info(`Starting process [${this.name}]...`);
     this.handle = Deno.run({
       cmd: this.getStartCommand(),
       stdout: this.config.stdout ? "piped" : "inherit",
@@ -210,6 +211,7 @@ export default class Process {
 
     if (isBackOff) {
       this._status = "BACKOFF";
+      Logger.getInstance().info(`Process [${this.name}] exited too soon`);
       return this.autoRestart({ exitCode, startupProcess });
     }
 
@@ -217,6 +219,7 @@ export default class Process {
       this.onProcessExit(processStatus, startupProcess)
     );
 
+    Logger.getInstance().info(`Process [${this.name}] started.`);
     return `${this.name}: started`;
   }
 
@@ -229,6 +232,7 @@ export default class Process {
 
     const signal: Signal = this.config.stopSignal ?? "TERM";
     const signo = SignalCode[signal];
+    Logger.getInstance().info(`Stopping [${this.name}]...`);
     this.handle.kill(signo);
 
     const stopTimeMs = secondsToMillis(this.config.stopTime);
@@ -236,6 +240,7 @@ export default class Process {
     const sig = Deno.signal(SignalCode["CHLD"]);
     const tid = setTimeout(() => {
       sig.dispose();
+      Logger.getInstance().info(`Force kill [${this.name}].`);
       this.handle?.kill(SignalCode["KILL"]);
     }, stopTimeMs);
 
@@ -245,6 +250,7 @@ export default class Process {
     }
 
     this.handle = null;
+    Logger.getInstance().info(`Process [${this.name}] stopped by user.`);
     return `${this.name}: stopped`;
   }
 }

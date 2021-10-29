@@ -1,3 +1,4 @@
+import Logger from "../logger/Logger.class.ts";
 import { isUndefined } from "../utils/index.ts";
 import { Configuration, Programs } from "./types.ts";
 export default class ConfigFile {
@@ -25,6 +26,13 @@ export default class ConfigFile {
 
   async loadConfigFile() {
     const integrityCheck = (config: Record<string, unknown>) => {
+      if (isUndefined(config.logFile)) {
+        throw new Error("Missing key [logFile] in configuration");
+      }
+
+      const logger = Logger.getInstance(config.logFile as string);
+      logger.info("Checking configuration validity.");
+
       if (isUndefined(config.programs)) {
         throw new Error("Missing key [programs] in configuration");
       }
@@ -49,8 +57,11 @@ export default class ConfigFile {
       integrityCheck(config);
       this._config = config as Configuration;
       programsCheck(this._config.programs);
+      Logger.getInstance().info("Configuration is valid.");
     } catch (error) {
-      console.error(`[-] ${error.message}`);
+      Logger.getInstance().error(
+        `Configuration is invalid:\n${error.message}\nExiting...`,
+      );
       Deno.exit(1);
     }
   }

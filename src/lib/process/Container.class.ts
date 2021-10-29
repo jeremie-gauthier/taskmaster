@@ -2,6 +2,7 @@ import Process from "./Process.class.ts";
 import ConfigFile from "../config/ConfigFile.class.ts";
 import { ProcessConfig, Programs } from "../config/types.ts";
 import { isEmpty, isNone, isUndefined } from "../utils/index.ts";
+import Logger from "../logger/Logger.class.ts";
 
 export type ProcessList = {
   [processName: string]: ProcessConfig;
@@ -115,12 +116,12 @@ export default class Container {
     // TODO: take logFile into account
     // TODO: tester en supprimant le fichier
     // TODO: tester en supprimant le contenu du fichier
-    console.log("RELOAD FROM CONFIG FILE");
 
     const isPartOfAGroup = (processName: string) =>
       processName.match(/^\w+:\w+$/);
 
     try {
+      Logger.getInstance().info(`Reloading configuration file.`);
       const newConfig = ConfigFile.getInstance().config!;
       const newPrograms = newConfig.programs;
       const newProgramsEntries = Object.entries(newConfig.programs);
@@ -152,7 +153,6 @@ export default class Container {
         const hasGroup = !isEmpty(group);
         const isNewProg = isNone(oldPrograms[newProgName]) && !hasGroup;
 
-        console.log(newProgName, "is new prog ?", isNewProg);
         if (isNewProg) {
           this.spawnProc(newProgName, newProgConfig);
         } else {
@@ -181,14 +181,15 @@ export default class Container {
           }
         }
       }
-
-      // console.log(ConfigFile.getInstance().config?.programs);
     } catch (error) {
-      console.error(`[-] Error while building processes (${error})`);
+      Logger.getInstance().error(
+        `Error while parsing the configuration file:\n${error.message}`,
+      );
+      Deno.exit(1);
     }
 
-    console.log(
-      `[*] Processes sucessfully built from config file:\n${
+    Logger.getInstance().info(
+      `New configuration loaded successfully:\n${
         JSON.stringify(this.processes, null, 4)
       }`,
     );
@@ -212,11 +213,9 @@ export default class Container {
   }
 
   private integrityCheck(processName: string, processConfig: ProcessConfig) {
-    // no need to check for duplicate keys, this is done natively in JSON
-
     if (isUndefined(processConfig.cmd)) {
-      console.error(
-        `[-] Missing key [cmd] for process [${processName}]. Ignored.`,
+      Logger.getInstance().error(
+        `Missing key [cmd] for process [${processName}]. Ignored.`,
       );
       return false;
     }
@@ -225,7 +224,9 @@ export default class Container {
 
   private add(processName: string, processConfig: ProcessConfig) {
     if (this.integrityCheck(processName, processConfig)) {
-      console.log(`[+] ADD: ${processName} to the list of programs`);
+      Logger.getInstance().info(
+        `Adding ${processName} to the list of known programs.`,
+      );
       this.processes[processName] = new Process(processName, processConfig);
     }
   }
@@ -247,7 +248,9 @@ export default class Container {
           };
         }
       } else {
-        console.log(`[+] PATCH: ${processName} from the list of programs`);
+        Logger.getInstance().info(
+          `Patching the configuration of ${processName}.`,
+        );
         this.processes[processName].config = {
           ...currentConfig,
           ...newProcessConfig,
@@ -260,7 +263,9 @@ export default class Container {
     const process = this.processes[processName];
     if (process) {
       await process.stop();
-      console.log(`[+] REMOVE: ${processName} from the list of programs`);
+      Logger.getInstance().info(
+        `Removing ${processName} from the list of known programs.`,
+      );
       delete this.processes[processName];
     }
   }
