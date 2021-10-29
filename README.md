@@ -92,8 +92,8 @@ The `server` is a daemon, it receives user inputs, treat them and returns a
 
 ### Features
 
-- [ ] La doit être rechargeable pendant que taskmaster est en train de tourner
-  en lui envoyant un SIGHUP
+- [ ] La configuration doit être rechargeable pendant que taskmaster est en
+  train de tourner en lui envoyant un SIGHUP
 - [x] Votre programme doit avoir un système de registres afin d’enregistrer les
   évènementsdans un fichier local
 
@@ -101,8 +101,8 @@ Le shell devra au moins autoriser l’utilisateur à :
 
 - [ ] Voir le statut de tous les programmes décris dans le fichier de
   configuration (avec la commande "status")
-- [x] Lancer les programmes # PRENDRE EN COMPTE LA NOTION DE GROUPE
-- [x] Arrêter les programmes # PRENDRE EN COMPTE LA NOTION DE GROUPE
+- [x] Lancer les programmes
+- [x] Arrêter les programmes
 - [ ] Relancer les programmes
 - [x] Recharger le fichier de configuration sans que le programme principal
   s’arrête
@@ -131,3 +131,9 @@ suit, pour chaque programme cela doit être supervisé :
 - [x] Des variables d’environnement a set avant de lancer le programme
 - [x] Un répertoire de travail a set avant de lancer le programme
 - [x] Un umask a set avant de lancer le programme
+
+### Bonuses
+
+- [x] Gestion des process par groupe
+- [x] Architecture client / serveur
+- [x] Système de log avancé
