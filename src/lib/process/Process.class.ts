@@ -258,7 +258,17 @@ export default class Process {
 
     // Send the stop signal to the subprocess, it should respond with a SIGCHLD
     const signo = SignalCode[this.config.stopSignal ?? "TERM"];
-    this.handle.kill(signo);
+    try {
+      this.handle.kill(signo);
+    } catch (_error) {
+      try {
+        if (signo !== SignalCode["TERM"]) {
+          this.handle.kill(SignalCode["TERM"]);
+        }
+      } catch (_error) {
+        return `${this.name}: ERROR (not running)`;
+      }
+    }
 
     Logger.getInstance().info(`Process [${this.name}] stopped by user.`);
     return `${this.name}: stopped`;

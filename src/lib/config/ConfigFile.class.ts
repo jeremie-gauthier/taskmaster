@@ -1,6 +1,7 @@
 import Logger from "../logger/Logger.class.ts";
+import { quitServer } from "../utils/daemon.ts";
 import { isUndefined } from "../utils/index.ts";
-import { Configuration, Programs, SignalCode } from "./types.ts";
+import { Configuration, Programs } from "./types.ts";
 export default class ConfigFile {
   private pathname: string;
   private _config: Configuration | null = null;
@@ -43,9 +44,81 @@ export default class ConfigFile {
         if (!progName.match(/^\w+$/)) {
           throw new Error(`Error program ${progName} is not a valid name`);
         }
+
         if (!progConfig.cmd) {
           throw new Error(
             `Error program ${progName} does not specify a cmd in section 'programs:${progName}' (file: '${this.pathname}')`,
+          );
+        }
+
+        if (progConfig.numProcs && isNaN(progConfig.numProcs)) {
+          throw new Error(
+            `Error program ${progName} does not specify a number in section 'programs:${progName}:numProcs' (file: '${this.pathname}')`,
+          );
+        }
+
+        if (
+          progConfig.autoStart && progConfig.autoStart !== true &&
+          progConfig.autoStart !== false
+        ) {
+          throw new Error(
+            `Error program ${progName} does not specify a boolean in section 'programs:${progName}:autoStart' (file: '${this.pathname}')`,
+          );
+        }
+
+        if (
+          progConfig.autoRestart &&
+          !["always", "unexpected", "never"].includes(progConfig.autoRestart)
+        ) {
+          throw new Error(
+            `Error program ${progName} does not specify a one of allowed keywords ["always" | "unexpected" | "never"] in section 'programs:${progName}:autoRestart' (file: '${this.pathname}')`,
+          );
+        }
+
+        if (
+          progConfig.exitCodes && (!Array.isArray(progConfig.exitCodes) ||
+            progConfig.exitCodes.some((code) => isNaN(code)))
+        ) {
+          throw new Error(
+            `Error program ${progName} does not specify an array of number in section 'programs:${progName}:exitCodes' (file: '${this.pathname}')`,
+          );
+        }
+
+        if (
+          progConfig.startTime &&
+          (isNaN(progConfig.startTime) || progConfig.startTime < 0)
+        ) {
+          throw new Error(
+            `Error program ${progName} does not specify a valid number in section 'programs:${progName}:startTime' (file: '${this.pathname}')`,
+          );
+        }
+
+        if (
+          progConfig.startRetries &&
+          (isNaN(progConfig.startRetries) || progConfig.startRetries < 0)
+        ) {
+          throw new Error(
+            `Error program ${progName} does not specify a valid number in section 'programs:${progName}:startRetries' (file: '${this.pathname}')`,
+          );
+        }
+
+        if (
+          progConfig.stopSignal &&
+          !["TERM", "HUP", "INT", "QUIT", "KILL", "USR1", "USR2"].includes(
+            progConfig.stopSignal,
+          )
+        ) {
+          throw new Error(
+            `Error program ${progName} does not specify a valid signal ["TERM" | "HUP" | "INT" | "QUIT" | "KILL" | "USR1" | "USR2"] in section 'programs:${progName}:stopSignal' (file: '${this.pathname}')`,
+          );
+        }
+
+        if (
+          progConfig.stopTime &&
+          (isNaN(progConfig.stopTime) || progConfig.stopTime < 0)
+        ) {
+          throw new Error(
+            `Error program ${progName} does not specify a valid number in section 'programs:${progName}:stopTime' (file: '${this.pathname}')`,
           );
         }
       }
@@ -56,7 +129,8 @@ export default class ConfigFile {
       const config = JSON.parse(configFileContent) as Record<string, unknown>;
       integrityCheck(config);
 
-      if (config.logFile !== this._config?.logFile) {
+      // detect if the log file has changed
+      if (this._config && config.logFile !== this._config.logFile) {
         await Logger.open(config.logFile as string);
       }
 
@@ -68,13 +142,14 @@ export default class ConfigFile {
         Logger.getInstance().error(
           `Configuration is invalid:\n${error.message}\nExiting...`,
         );
-      } catch (error) {
-        console.error(
-          `Configuration is invalid:\n${error.message}\nExiting...`,
-        );
+      } catch (_error) {
+        // no logger
       }
-      // @ts-ignore Deno.kill is an experimental feature
-      Deno.kill(Deno.pid, SignalCode["TERM"]);
+
+      console.error(
+        `Configuration is invalid:\n${error.message}\nExiting...`,
+      );
+      await quitServer();
     }
   }
 
