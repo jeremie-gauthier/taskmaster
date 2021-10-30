@@ -39,17 +39,18 @@ export default class Logger {
     return Logger.instance;
   }
 
-  async open(logFile: string) {
-    if (this._logFile) {
-      await this.info("Detected a log file path change. Closing...");
-      this._logFile.close();
+  static async open(logFile: string) {
+    const logger = Logger.getInstance();
+    if (logger._logFile) {
+      await logger.info("Detected a log file path change. Closing...");
+      logger._logFile.close();
     }
-    this._logFile = await Deno.open(logFile, {
+    logger._logFile = await Deno.open(logFile, {
       create: true,
       write: true,
       append: true,
     });
-    await this.info("Log file opened. Ready to register events.");
+    await logger.info("Log file opened. Ready to register events.");
   }
 
   private write(msg: string) {

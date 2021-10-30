@@ -152,7 +152,7 @@ export default class Process {
         }
     }
 
-    let exitMsg = `--> ${this.status}`;
+    let exitMsg = `${this.status}`;
     // default and never case are same process
     switch (this.status) {
       case "BACKOFF":
@@ -202,8 +202,8 @@ export default class Process {
     Logger.getInstance().info(`Starting process [${this.name}]...`);
     this.handle = Deno.run({
       cmd: this.getStartCommand(),
-      stdout: this.config.stdout ? "piped" : "inherit",
-      stderr: this.config.stderr ? "piped" : "inherit",
+      stdout: this.config.stdout ? "piped" : "null",
+      stderr: this.config.stderr ? "piped" : "null",
     });
 
     const { code: exitCode } = await Promise.race([

@@ -9,10 +9,8 @@ const on = async (signo: number, handler: () => void) => {
   const sig = Deno.signal(signo);
 
   for await (const _ of sig) {
-    console.log("got signal", signo);
     handler();
   }
-  console.log("ended", signo);
 };
 
 export const signal = {

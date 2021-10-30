@@ -1,6 +1,6 @@
 import Process from "./Process.class.ts";
 import ConfigFile from "../config/ConfigFile.class.ts";
-import { ProcessConfig, Programs } from "../config/types.ts";
+import { ProcessConfig, Programs, SignalCode } from "../config/types.ts";
 import { isEmpty, isNone, isUndefined } from "../utils/index.ts";
 import Logger from "../logger/Logger.class.ts";
 
@@ -51,8 +51,7 @@ export default class Container {
 
   private stopMultipleProcs = (groupName: string) => {
     const toStop = this.procGroup(groupName);
-    const stopPromises = toStop.map((progName) => this.remove(progName));
-    return Promise.all(stopPromises);
+    toStop.forEach((procName) => this.remove(procName));
   };
 
   buildFromConfigFile() {
@@ -69,14 +68,12 @@ export default class Container {
         this.spawnProc(processName, processConfigWithDefaults);
       }
     } catch (error) {
-      console.error(`[-] Error while building processes (${error})`);
+      Logger.getInstance().error(
+        `Error while parsing the configuration file:\n${error.message}`,
+      );
+      // @ts-ignore Deno.kill is an experimental feature
+      Deno.kill(Deno.pid, SignalCode["TERM"]);
     }
-
-    // console.log(
-    //   `[*] Processes sucessfully built from config file:\n${
-    //     JSON.stringify(this.processes, null, 4)
-    //   }`,
-    // );
   }
 
   private processReloading = async (
@@ -95,7 +92,7 @@ export default class Container {
     if (
       oneOneProcess(oldProgConfig.numProcs, newProgConfig.numProcs)
     ) {
-      await currentProcess.stop();
+      currentProcess.stop();
       await currentProcess.start({
         commandFromUser: true,
         startupProcess: true,
@@ -103,24 +100,20 @@ export default class Container {
     } else if (
       oneManyProcess(oldProgConfig.numProcs, newProgConfig.numProcs)
     ) {
-      await this.remove(newProgName);
+      this.remove(newProgName);
       this.spawnProc(newProgName, newProgConfig);
     } else if (
       oneManyProcess(newProgConfig.numProcs, oldProgConfig.numProcs)
     ) {
-      await this.stopMultipleProcs(newProgName);
+      this.stopMultipleProcs(newProgName);
       this.add(newProgName, newProgConfig);
     } else {
-      await this.stopMultipleProcs(newProgName);
+      this.stopMultipleProcs(newProgName);
       this.spawnProc(newProgName, newProgConfig);
     }
   };
 
   async reloadFromConfigFile() {
-    // TODO: take logFile into account
-    // TODO: tester en supprimant le fichier
-    // TODO: tester en supprimant le contenu du fichier
-
     const isPartOfAGroup = (processName: string) =>
       processName.match(/^\w+:\w+$/);
 
@@ -264,10 +257,10 @@ export default class Container {
     }
   }
 
-  private async remove(processName: string) {
+  private remove(processName: string) {
     const process = this.getProcess(processName);
     if (process) {
-      await process.stop();
+      process.stop();
       Logger.getInstance().info(
         `Removing ${processName} from the list of known programs.`,
       );

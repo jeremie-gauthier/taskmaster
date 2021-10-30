@@ -1,5 +1,3 @@
-// unexpected: if exit code is not in ProcessConfig.exitcode list,
-//  then it's unexpected
 export type AutoRestart = "always" | "never" | "unexpected";
 
 export const SignalCode: Record<Signal, number> = {

@@ -7,7 +7,7 @@ export default class Stop extends Command {
     super(args);
   }
 
-  async exec() {
+  exec() {
     if (isEmpty(this.args)) {
       return this.usage();
     }
@@ -23,9 +23,8 @@ export default class Stop extends Command {
         processResponses.push(`${arg}: not found`);
       }
     }
-    const allResponses = await Promise.all(processResponses);
 
-    return allResponses.join("\n");
+    return processResponses.join("\n");
   }
 
   usage() {

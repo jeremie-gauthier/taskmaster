@@ -1,6 +1,6 @@
 import Logger from "../logger/Logger.class.ts";
 import { isUndefined } from "../utils/index.ts";
-import { Configuration, Programs } from "./types.ts";
+import { Configuration, Programs, SignalCode } from "./types.ts";
 export default class ConfigFile {
   private pathname: string;
   private _config: Configuration | null = null;
@@ -55,13 +55,24 @@ export default class ConfigFile {
       const configFileContent = await Deno.readTextFile(this.pathname);
       const config = JSON.parse(configFileContent) as Record<string, unknown>;
       integrityCheck(config);
+
+      if (config.logFile !== this._config?.logFile) {
+        await Logger.open(config.logFile as string);
+      }
+
       this._config = config as Configuration;
       programsCheck(this._config.programs);
       Logger.getInstance().info("Configuration is valid.");
     } catch (error) {
-      Logger.getInstance().error(
-        `Configuration is invalid:\n${error.message}\nExiting...`,
-      );
+      try {
+        Logger.getInstance().error(
+          `Configuration is invalid:\n${error.message}\nExiting...`,
+        );
+      } catch (error) {
+        console.error(
+          `Configuration is invalid:\n${error.message}\nExiting...`,
+        );
+      }
       // @ts-ignore Deno.kill is an experimental feature
       Deno.kill(Deno.pid, SignalCode["TERM"]);
     }
