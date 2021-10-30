@@ -2,14 +2,20 @@ import Logger from "../logger/Logger.class.ts";
 import Container from "../process/Container.class.ts";
 import Process from "../process/Process.class.ts";
 import { isEmpty } from "../utils/index.ts";
+import { ellapsedTime } from "../utils/date.ts";
 import Command from "./Command.class.ts";
 
 export default class Status extends Command {
-  private static UPTIME_FMT = Intl.DateTimeFormat("fr", {
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
-  }).format;
+  private static UPTIME_FMT = (date: Date) => {
+    const time = ellapsedTime(date);
+    const prefix = (n: number) => n < 10 ? `0${n}` : `${n}`;
+    const fmt = {
+      sec: prefix(Math.floor(time)),
+      min: prefix(Math.floor(time / 60)),
+      h: Math.floor(time / 60 / 60),
+    };
+    return `${fmt.h}:${fmt.min}:${fmt.sec}`;
+  };
 
   private static STOP_TIME_FMT = Intl.DateTimeFormat("fr", {
     month: "long",
