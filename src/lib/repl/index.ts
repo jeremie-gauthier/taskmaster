@@ -1,12 +1,14 @@
 import TCPMessage from "../tcp/TCPMessage.class.ts";
 
 const repl = async (TCPMsg: TCPMessage) => {
-  let read = true;
-
-  while (read) {
+  while (true) {
     const input = prompt("> ");
 
     if (input) {
+      if (input === "exit") {
+        break;
+      }
+
       await TCPMsg.write(input);
 
       const response = await TCPMsg.read();
@@ -14,8 +16,8 @@ const repl = async (TCPMsg: TCPMessage) => {
         console.log(response.msg);
       }
 
-      if (input === "exit") {
-        read = false;
+      if (input === "shutdown") {
+        break;
       }
     } else {
       console.log();

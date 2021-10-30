@@ -15,7 +15,6 @@ export default class TCPConnecter {
 
       const greetings = await this._TCPMsg.read();
       if (greetings?.payload?.canConnect) {
-        console.info(`[*] Connected to 0.0.0.0:${port}`);
         console.log(greetings.msg);
       } else {
         throw new Error(

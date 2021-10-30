@@ -1,6 +1,6 @@
 import Command from "./Command.class.ts";
-import Processes from "../process/Container.class.ts";
 import { isEmpty } from "../utils/index.ts";
+import Container from "../process/Container.class.ts";
 
 export default class Start extends Command {
   constructor(args: string[]) {
@@ -15,7 +15,7 @@ export default class Start extends Command {
     const processResponses: (Promise<string> | string)[] = [];
 
     for (const arg of this.args) {
-      const currentProcess = Processes.getInstance().getProcess(arg);
+      const currentProcess = Container.getInstance().getProcess(arg);
 
       if (currentProcess) {
         processResponses.push(

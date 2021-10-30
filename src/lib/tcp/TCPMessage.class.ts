@@ -23,8 +23,9 @@ export default class TCPMessage {
       const data: JSONMessage = { msg, payload };
       const encodedMsg = TCPMessage.Encoder.encode(JSON.stringify(data));
       await this.conn.write(encodedMsg);
-    } catch (error) {
-      console.error(`[-] Cannot write TCP message (${error})`);
+    } catch (_error) {
+      console.error(`[-] Cannot write TCP message (Connection reset by peer)`);
+      Deno.exit(1);
     }
   }
 
@@ -38,9 +39,9 @@ export default class TCPMessage {
       const rawMessage = TCPMessage.Decoder.decode(buffer);
       const message = rawMessage.substr(0, nBytesRead ?? 0);
       return JSON.parse(message) as JSONMessage;
-    } catch (error) {
-      console.error(`[-] Cannot read TCP message (${error})`);
-      return null;
+    } catch (_error) {
+      console.error(`[-] Cannot read TCP message (Connection reset by peer)`);
+      Deno.exit(1);
     }
   }
 
@@ -57,7 +58,6 @@ export default class TCPMessage {
         }
         const rawMessage = TCPMessage.Decoder.decode(buffer);
         const message = rawMessage.substr(0, nBytesRead ?? 0);
-        // console.log(`|${message}|${nBytesRead}`);
         yield JSON.parse(message);
       } catch (error) {
         console.error(`[-] Cannot read TCP message (${error})`);

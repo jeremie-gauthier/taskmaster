@@ -14,7 +14,9 @@ import { isNull } from "./lib/utils/index.ts";
     if (tcp.TCPMsg) {
       await repl(tcp.TCPMsg);
     }
+    return 0;
   } catch (error) {
     console.log(error.message);
+    return 1;
   }
 })();

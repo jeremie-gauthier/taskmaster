@@ -5,11 +5,14 @@ import matchCommand from "./lib/commands/matchCommand.ts";
 import Processes from "./lib/process/Container.class.ts";
 import { isNull } from "./lib/utils/index.ts";
 import { getTcpPort } from "./lib/utils/envVars.ts";
+import Shutdown from "./lib/commands/Shutdown.class.ts";
+import Status from "./lib/commands/Status.class.ts";
 
 const handleConn = async (TCPMsg: TCPMessage) => {
-  await TCPMsg.write("Hello, client!", { canConnect: true });
+  const StatusCommand = new Status(["all"]);
+  const statusProcesses = StatusCommand.exec();
+  await TCPMsg.write(statusProcesses, { canConnect: true });
   await readFromConn(TCPMsg);
-  await TCPMsg.write("Goodbye !");
 };
 
 const readFromConn = async (TCPMsg: TCPMessage) => {
@@ -25,7 +28,11 @@ const readFromConn = async (TCPMsg: TCPMessage) => {
     }
 
     const cmdResponse = await new Command(args).exec();
-    TCPMsg.write(cmdResponse);
+    await TCPMsg.write(cmdResponse);
+
+    if (cmd === Shutdown.name.toLowerCase()) {
+      Deno.exit(0);
+    }
   }
 };
 
