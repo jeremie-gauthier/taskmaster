@@ -74,6 +74,11 @@ export default class Status extends Command {
   }
 
   usage() {
-    return "status <process_name>";
+    return [
+      "status <name>\t\tGet status for a single process",
+      "status <gname>:*\tGet status for all processes in a group",
+      "status <name> <name>\tGet status for multiple named processes",
+      "status\t\t\tGet all process status info",
+    ].join("\n");
   }
 }

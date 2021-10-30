@@ -7,6 +7,7 @@ import { isNull } from "./lib/utils/index.ts";
 import { getTcpPort } from "./lib/utils/envVars.ts";
 import Shutdown from "./lib/commands/Shutdown.class.ts";
 import Status from "./lib/commands/Status.class.ts";
+import Exit from "./lib/commands/Exit.class.ts";
 
 const handleConn = async (TCPMsg: TCPMessage) => {
   const StatusCommand = new Status(["all"]);
@@ -30,6 +31,9 @@ const readFromConn = async (TCPMsg: TCPMessage) => {
     const cmdResponse = await new Command(args).exec();
     await TCPMsg.write(cmdResponse);
 
+    if (cmd === Exit.name.toLowerCase()) {
+      return 0;
+    }
     if (cmd === Shutdown.name.toLowerCase()) {
       Deno.exit(0);
     }

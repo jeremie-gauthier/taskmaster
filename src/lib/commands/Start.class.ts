@@ -31,6 +31,11 @@ export default class Start extends Command {
   }
 
   usage() {
-    return "start <process_name>";
+    return [
+      "start <name>\t\tStart a process",
+      "start <gname>:\t\tStart all processes in a group",
+      "start <name> <name>\tStart multiple processes or groups",
+      "start all\t\tStart all processes",
+    ].join("\n");
   }
 }

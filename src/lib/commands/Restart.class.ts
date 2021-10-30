@@ -26,6 +26,11 @@ export default class Restart extends Command {
   }
 
   usage() {
-    return "restart <process_name>";
+    return [
+      "restart <name>\t\tRestart a process",
+      "restart <gname>:\tRestart all processes in a group",
+      "restart <name> <name>\tRestart multiple processes or groups",
+      "restart all\t\tRestart all processes",
+    ].join("\n");
   }
 }

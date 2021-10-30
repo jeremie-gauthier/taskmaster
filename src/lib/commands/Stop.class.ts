@@ -29,6 +29,11 @@ export default class Stop extends Command {
   }
 
   usage() {
-    return "stop <process_name>";
+    return [
+      "stop <name>\t\tStop a process",
+      "stop <gname>:*\t\tStop all processes in a group",
+      "stop <name> <name>\tStop multiple processes or groups",
+      "stop all\t\tStop all processes",
+    ].join("\n");
   }
 }

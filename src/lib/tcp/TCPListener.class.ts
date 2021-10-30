@@ -47,16 +47,23 @@ export default class TCPListener {
       if (this.canConnect()) {
         Logger.getInstance().info(`Connection (id: ${conn.rid}) allowed.`);
         onConnect(TCPMsg)
-          .then(() => this.removeConn(conn));
+          .then(() => {
+            Logger.getInstance().info(
+              `Connection (id: ${conn.rid}) closed by remote user.`,
+            );
+            this.removeConn(conn);
+          });
       } else {
-        Logger.getInstance().error(
-          `Connection (id: ${conn.rid}) rejected (No space left).`,
-        );
         TCPMsg.write(
           "[-] Cannot connect to taskmaster daemon (No space left)",
           { canConnect: false },
         )
-          .then(() => this.removeConn(conn));
+          .then(() => {
+            Logger.getInstance().error(
+              `Connection (id: ${conn.rid}) rejected (No space left).`,
+            );
+            this.removeConn(conn);
+          });
       }
     }
   }

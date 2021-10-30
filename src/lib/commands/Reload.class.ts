@@ -14,6 +14,6 @@ export default class Reload extends Command {
   }
 
   usage() {
-    return "reload\t\tRestart the remote taskmasterd.";
+    return "reload\t\t\tRestart the remote taskmasterd.";
   }
 }

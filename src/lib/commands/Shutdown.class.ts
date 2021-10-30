@@ -13,6 +13,6 @@ export default class Shutdown extends Command {
   }
 
   usage() {
-    return "Shut the remote taskmasterd down.";
+    return "shutdown\t\tShut the remote taskmasterd down.";
   }
 }
