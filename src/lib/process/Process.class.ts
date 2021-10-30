@@ -219,6 +219,7 @@ export default class Process {
       return this.autoRestart({ exitCode, startupProcess });
     }
 
+    this._status = "RUNNING";
     this.handle.status().then((processStatus) =>
       this.onProcessExit(processStatus, startupProcess)
     );
