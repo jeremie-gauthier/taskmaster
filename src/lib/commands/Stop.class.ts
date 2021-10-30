@@ -12,11 +12,10 @@ export default class Stop extends Command {
       return this.usage();
     }
 
-    const processes = Processes.getInstance().processes;
     const processResponses: (Promise<string> | string)[] = [];
 
     for (const arg of this.args) {
-      const currentProcess = processes[arg];
+      const currentProcess = Processes.getInstance().getProcess(arg);
 
       if (currentProcess) {
         processResponses.push(currentProcess.stop());

@@ -28,6 +28,10 @@ export default class Container {
     return Container.instance;
   }
 
+  getProcess(processName: string) {
+    return this.processes[processName];
+  }
+
   private spawnProc = (name: string, config: ProcessConfig) => {
     const { numProcs } = config;
 
@@ -260,7 +264,7 @@ export default class Container {
   }
 
   private async remove(processName: string) {
-    const process = this.processes[processName];
+    const process = this.getProcess(processName);
     if (process) {
       await process.stop();
       Logger.getInstance().info(

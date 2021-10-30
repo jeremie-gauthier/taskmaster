@@ -58,13 +58,12 @@ export default class Status extends Command {
   exec() {
     Logger.getInstance().info("Get processes status");
 
-    const processes = Container.getInstance().processes;
     const maxNameLen = Math.max(
       ...(this.getAllProcessName().map((processName) => processName.length)),
     );
 
     return this.args.map((arg) => {
-      const currentProcess = processes[arg];
+      const currentProcess = Container.getInstance().getProcess(arg);
 
       if (currentProcess) {
         return this.format(currentProcess, maxNameLen);
