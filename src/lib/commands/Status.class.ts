@@ -10,8 +10,8 @@ export default class Status extends Command {
     const time = ellapsedTime(date);
     const prefix = (n: number) => n < 10 ? `0${n}` : `${n}`;
     const fmt = {
-      sec: prefix(Math.floor(time)),
-      min: prefix(Math.floor(time / 60)),
+      sec: prefix(Math.floor(time % 60)),
+      min: prefix(Math.floor((time / 60) % 60)),
       h: Math.floor(time / 60 / 60),
     };
     return `${fmt.h}:${fmt.min}:${fmt.sec}`;
