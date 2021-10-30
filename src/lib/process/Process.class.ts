@@ -1,8 +1,9 @@
-import { ProcessConfig, Signal, SignalCode } from "../config/types.ts";
+import { ProcessConfig, SignalCode } from "../config/types.ts";
 import { ellapsedTime, secondsToMillis } from "../utils/date.ts";
 import type { ProcessStatus } from "./types.ts";
 import { copy } from "https://deno.land/std@0.104.0/io/util.ts";
 import Logger from "../logger/Logger.class.ts";
+import { signal } from "../utils/signals.ts";
 
 type AutoRestartCtx = {
   exitCode: Deno.ProcessStatus["code"];
@@ -228,33 +229,37 @@ export default class Process {
     return `${this.name}: started`;
   }
 
-  async stop() {
+  stop() {
     if (
       ["FATAL", "EXITED", "STOPPED"].includes(this.status) || !this.handle
     ) {
       return `${this.name}: ERROR (not running)`;
     }
 
-    const signal: Signal = this.config.stopSignal ?? "TERM";
-    const signo = SignalCode[signal];
     Logger.getInstance().info(`Stopping [${this.name}]...`);
-    this.handle.kill(signo);
 
     const stopTimeMs = secondsToMillis(this.config.stopTime);
+
     // @ts-ignore Deno.signal is an experimental feature
-    const sig = Deno.signal(SignalCode["CHLD"]);
+    const sigChild = SignalCode["CHLD"];
+
+    // if SIGCHLD not receive in the meanwhile, then force kill subprocess
     const tid = setTimeout(() => {
-      sig.dispose();
       Logger.getInstance().info(`Force kill [${this.name}].`);
       this.handle?.kill(SignalCode["KILL"]);
+      this.handle = null;
     }, stopTimeMs);
 
-    for await (const _ of sig) {
-      sig.dispose();
+    // await for the SIGCHLD signal to be received
+    signal.once(sigChild, () => {
+      this.handle = null;
       clearTimeout(tid);
-    }
+    });
 
-    this.handle = null;
+    // Send the stop signal to the subprocess, it should respond with a SIGCHLD
+    const signo = SignalCode[this.config.stopSignal ?? "TERM"];
+    this.handle.kill(signo);
+
     Logger.getInstance().info(`Process [${this.name}] stopped by user.`);
     return `${this.name}: stopped`;
   }
