@@ -62,7 +62,8 @@ export default class ConfigFile {
       Logger.getInstance().error(
         `Configuration is invalid:\n${error.message}\nExiting...`,
       );
-      Deno.exit(1);
+      // @ts-ignore Deno.signal is an experimental feature
+      Deno.kill(Deno.pid, SignalCode["TERM"]);
     }
   }
 

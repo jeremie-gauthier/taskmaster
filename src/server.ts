@@ -8,6 +8,9 @@ import { getTcpPort } from "./lib/utils/envVars.ts";
 import Shutdown from "./lib/commands/Shutdown.class.ts";
 import Status from "./lib/commands/Status.class.ts";
 import Exit from "./lib/commands/Exit.class.ts";
+import { SignalCode } from "./lib/config/types.ts";
+import { removeServerPID, writeServerPID } from "./lib/utils/daemon.ts";
+import Stop from "./lib/commands/Stop.class.ts";
 
 const handleConn = async (TCPMsg: TCPMessage) => {
   const StatusCommand = new Status(["all"]);
@@ -35,9 +38,24 @@ const readFromConn = async (TCPMsg: TCPMessage) => {
       return 0;
     }
     if (cmd === Shutdown.name.toLowerCase()) {
-      Deno.exit(0);
+      // @ts-ignore Deno.signal is an experimental feature
+      Deno.kill(Deno.pid, SignalCode["TERM"]);
     }
   }
+};
+
+const listenSignals = async () => {
+  // @ts-ignore Deno.signal is an experimental feature
+  const sig = Deno.signal(SignalCode["TERM"]);
+
+  for await (const _ of sig) {
+    console.log("got signal");
+    const StopCommand = new Stop(["all"]);
+    await Promise.all([StopCommand.exec(), removeServerPID()]);
+    sig.dispose();
+  }
+  console.log("ended");
+  Deno.exit(0);
 };
 
 (async () => {
@@ -49,12 +67,17 @@ const readFromConn = async (TCPMsg: TCPMessage) => {
   const TCP_PORT = getTcpPort();
   if (isNull(TCP_PORT)) return 1;
 
+  writeServerPID();
+
   const pathname = Deno.args[0];
   const configFile = ConfigFile.getInstance(pathname);
   await configFile.loadConfigFile();
   Processes.getInstance().buildFromConfigFile();
+  listenSignals();
 
   const listener = new TCPListener(TCP_PORT);
   await listener.handleIncomingConn(handleConn);
+
+  await removeServerPID();
   return 0;
 })();

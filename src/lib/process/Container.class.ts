@@ -72,11 +72,11 @@ export default class Container {
       console.error(`[-] Error while building processes (${error})`);
     }
 
-    console.log(
-      `[*] Processes sucessfully built from config file:\n${
-        JSON.stringify(this.processes, null, 4)
-      }`,
-    );
+    // console.log(
+    //   `[*] Processes sucessfully built from config file:\n${
+    //     JSON.stringify(this.processes, null, 4)
+    //   }`,
+    // );
   }
 
   private processReloading = async (
@@ -189,7 +189,8 @@ export default class Container {
       Logger.getInstance().error(
         `Error while parsing the configuration file:\n${error.message}`,
       );
-      Deno.exit(1);
+      // @ts-ignore Deno.signal is an experimental feature
+      Deno.kill(Deno.pid, SignalCode["TERM"]);
     }
 
     Logger.getInstance().info(
