@@ -1,3 +1,4 @@
+import Logger from "../logger/Logger.class.ts";
 import Command from "./Command.class.ts";
 
 export default class Exit extends Command {
@@ -6,6 +7,7 @@ export default class Exit extends Command {
   }
 
   exec() {
+    Logger.getInstance().info("User exits taskmasterctl.");
     return "\n";
   }
 

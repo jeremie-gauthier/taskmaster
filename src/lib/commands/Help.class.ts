@@ -1,3 +1,4 @@
+import Logger from "../logger/Logger.class.ts";
 import { isEmpty } from "../utils/index.ts";
 import Command from "./Command.class.ts";
 import Exit from "./Exit.class.ts";
@@ -7,6 +8,17 @@ import Shutdown from "./Shutdown.class.ts";
 import Start from "./Start.class.ts";
 import Status from "./Status.class.ts";
 import Stop from "./Stop.class.ts";
+
+type CommandsType = Record<
+  string,
+  | typeof Start
+  | typeof Status
+  | typeof Stop
+  | typeof Restart
+  | typeof Reload
+  | typeof Exit
+  | typeof Shutdown
+>;
 
 export default class Help extends Command {
   private detailCommand: string | null;
@@ -21,16 +33,9 @@ export default class Help extends Command {
   }
 
   exec() {
-    const Commands: Record<
-      string,
-      | typeof Start
-      | typeof Status
-      | typeof Stop
-      | typeof Restart
-      | typeof Reload
-      | typeof Exit
-      | typeof Shutdown
-    > = {
+    Logger.getInstance().info("Display processes usage.");
+
+    const Commands: CommandsType = {
       "start": Start,
       "restart": Restart,
       "stop": Stop,
