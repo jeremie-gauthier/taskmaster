@@ -103,10 +103,10 @@ Le shell devra au moins autoriser l’utilisateur à :
   configuration (avec la commande "status")
 - [x] Lancer les programmes
 - [x] Arrêter les programmes
-- [ ] Relancer les programmes
+- [x] Relancer les programmes
 - [x] Recharger le fichier de configuration sans que le programme principal
   s’arrête
-- [ ] Arrêter le programme principal
+- [x] Arrêter le programme principal
 
 Le fichier de configuration doit autoriser l’utilisateur à spécifier ce qui
 suit, pour chaque programme cela doit être supervisé :
@@ -137,3 +137,5 @@ suit, pour chaque programme cela doit être supervisé :
 - [x] Gestion des process par groupe
 - [x] Architecture client / serveur
 - [x] Système de log avancé
+- [x] Commande Help
+- [x] Commande Exit
