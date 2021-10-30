@@ -43,8 +43,7 @@ const readFromConn = async (TCPMsg: TCPMessage) => {
       return 0;
     }
     if (cmd === Shutdown.name.toLowerCase()) {
-      // @ts-ignore Deno.kill is an experimental feature
-      Deno.kill(Deno.pid, SignalCode["TERM"]);
+      await quitServer();
     }
   }
 };
@@ -67,7 +66,7 @@ const readFromConn = async (TCPMsg: TCPMessage) => {
   const pathname = Deno.args[0];
   const configFile = ConfigFile.getInstance(pathname);
   await configFile.loadConfigFile();
-  Processes.getInstance().buildFromConfigFile();
+  await Processes.getInstance().buildFromConfigFile();
 
   signal.on(SignalCode["HUP"], reloadConfig);
 

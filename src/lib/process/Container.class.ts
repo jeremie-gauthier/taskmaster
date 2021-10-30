@@ -1,8 +1,9 @@
 import Process from "./Process.class.ts";
 import ConfigFile from "../config/ConfigFile.class.ts";
-import { ProcessConfig, Programs, SignalCode } from "../config/types.ts";
+import { ProcessConfig, Programs } from "../config/types.ts";
 import { isEmpty, isNone, isUndefined } from "../utils/index.ts";
 import Logger from "../logger/Logger.class.ts";
+import { quitServer } from "../utils/daemon.ts";
 
 export type ProcessList = {
   [processName: string]: ProcessConfig;
@@ -54,7 +55,7 @@ export default class Container {
     toStop.forEach((procName) => this.remove(procName));
   };
 
-  buildFromConfigFile() {
+  async buildFromConfigFile() {
     const configFile = ConfigFile.getInstance();
 
     try {
@@ -71,8 +72,7 @@ export default class Container {
       Logger.getInstance().error(
         `Error while parsing the configuration file:\n${error.message}`,
       );
-      // @ts-ignore Deno.kill is an experimental feature
-      Deno.kill(Deno.pid, SignalCode["TERM"]);
+      await quitServer();
     }
   }
 
@@ -182,8 +182,7 @@ export default class Container {
       Logger.getInstance().error(
         `Error while parsing the configuration file:\n${error.message}`,
       );
-      // @ts-ignore Deno.kill is an experimental feature
-      Deno.kill(Deno.pid, SignalCode["TERM"]);
+      await quitServer();
     }
 
     Logger.getInstance().info(
