@@ -73,7 +73,8 @@ export default class Logger {
     return this.write(`[ ERROR ] - ${msg}`);
   }
 
-  close() {
-    this._logFile.close();
+  static close() {
+    const logger = Logger.getInstance();
+    logger._logFile.close();
   }
 }
