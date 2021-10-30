@@ -9,8 +9,13 @@ import Shutdown from "./lib/commands/Shutdown.class.ts";
 import Status from "./lib/commands/Status.class.ts";
 import Exit from "./lib/commands/Exit.class.ts";
 import { SignalCode } from "./lib/config/types.ts";
-import { removeServerPID, writeServerPID } from "./lib/utils/daemon.ts";
-import Stop from "./lib/commands/Stop.class.ts";
+import {
+  quitServer,
+  reloadConfig,
+  removeServerPID,
+  writeServerPID,
+} from "./lib/utils/daemon.ts";
+import { signal } from "./lib/utils/signals.ts";
 
 const handleConn = async (TCPMsg: TCPMessage) => {
   const StatusCommand = new Status(["all"]);
@@ -38,29 +43,15 @@ const readFromConn = async (TCPMsg: TCPMessage) => {
       return 0;
     }
     if (cmd === Shutdown.name.toLowerCase()) {
-      // @ts-ignore Deno.signal is an experimental feature
+      // @ts-ignore Deno.kill is an experimental feature
       Deno.kill(Deno.pid, SignalCode["TERM"]);
     }
   }
 };
 
-const listenSignals = async () => {
-  // @ts-ignore Deno.signal is an experimental feature
-  const sig = Deno.signal(SignalCode["TERM"]);
-
-  for await (const _ of sig) {
-    console.log("got signal");
-    const StopCommand = new Stop(["all"]);
-    await Promise.all([StopCommand.exec(), removeServerPID()]);
-    sig.dispose();
-  }
-  console.log("ended");
-  Deno.exit(0);
-};
-
 (async () => {
   if (Deno.args.length !== 1) {
-    console.error("taskmaster usage goes here");
+    console.error("usage: taskmaterd <config>");
     return 1;
   }
 
@@ -69,11 +60,16 @@ const listenSignals = async () => {
 
   writeServerPID();
 
+  signal.once(SignalCode["INT"], quitServer);
+  signal.once(SignalCode["QUIT"], quitServer);
+  signal.once(SignalCode["TERM"], quitServer);
+
   const pathname = Deno.args[0];
   const configFile = ConfigFile.getInstance(pathname);
   await configFile.loadConfigFile();
   Processes.getInstance().buildFromConfigFile();
-  listenSignals();
+
+  signal.on(SignalCode["HUP"], reloadConfig);
 
   const listener = new TCPListener(TCP_PORT);
   await listener.handleIncomingConn(handleConn);

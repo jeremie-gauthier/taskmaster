@@ -92,7 +92,7 @@ The `server` is a daemon, it receives user inputs, treat them and returns a
 
 ### Features
 
-- [ ] La configuration doit être rechargeable pendant que taskmaster est en
+- [x] La configuration doit être rechargeable pendant que taskmaster est en
   train de tourner en lui envoyant un SIGHUP
 - [x] Votre programme doit avoir un système de registres afin d’enregistrer les
   évènementsdans un fichier local

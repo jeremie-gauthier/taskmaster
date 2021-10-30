@@ -1,3 +1,7 @@
+import Stop from "../commands/Stop.class.ts";
+import ConfigFile from "../config/ConfigFile.class.ts";
+import Processes from "../process/Container.class.ts";
+
 const PID_FILE = "./taskmasterd.pid";
 
 export const writeServerPID = () => {
@@ -15,4 +19,15 @@ export const removeServerPID = () => {
   } catch (_error) {
     return null;
   }
+};
+
+export const quitServer = async () => {
+  const StopCommand = new Stop(["all"]);
+  await Promise.all([StopCommand.exec(), removeServerPID()]);
+  Deno.exit(0);
+};
+
+export const reloadConfig = async () => {
+  await ConfigFile.getInstance().loadConfigFile();
+  await Processes.getInstance().reloadFromConfigFile();
 };

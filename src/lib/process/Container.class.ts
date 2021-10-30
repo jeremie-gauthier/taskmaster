@@ -189,7 +189,7 @@ export default class Container {
       Logger.getInstance().error(
         `Error while parsing the configuration file:\n${error.message}`,
       );
-      // @ts-ignore Deno.signal is an experimental feature
+      // @ts-ignore Deno.kill is an experimental feature
       Deno.kill(Deno.pid, SignalCode["TERM"]);
     }
 

@@ -1,5 +1,4 @@
-import ConfigFile from "../config/ConfigFile.class.ts";
-import Processes from "../process/Container.class.ts";
+import { SignalCode } from "../config/types.ts";
 import Command from "./Command.class.ts";
 
 export default class Reload extends Command {
@@ -7,9 +6,9 @@ export default class Reload extends Command {
     super(args);
   }
 
-  async exec() {
-    await ConfigFile.getInstance().loadConfigFile();
-    await Processes.getInstance().reloadFromConfigFile();
+  exec() {
+    // @ts-ignore Deno.kill is an experimental feature
+    Deno.kill(Deno.pid, SignalCode["HUP"]);
     return "Restarted taskmasterd";
   }
 
