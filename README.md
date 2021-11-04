@@ -6,6 +6,12 @@ A supervisor-like CLI written in deno
 
 Follow the [deno instructions](https://deno.land/#installation)
 
+Then take the 1.13.2 version:
+
+```bash
+deno upgrade --version 1.13.2
+```
+
 ## Run
 
 You can run taskmaster locally or with Docker, pick one of the following methods
