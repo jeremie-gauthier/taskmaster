@@ -35,13 +35,13 @@ docker image rm -f `docker images | grep '^<none>' | tr -s ' ' | cut -d ' ' -f 3
 - Run the server with
 
   ```bash
-  export TASKMASTER_TCP_PORT=9000 && deno run --allow-env --allow-read --allow-net --allow-run src/server.ts
+  TASKMASTER_TCP_PORT=9000 deno run --allow-env --allow-write --allow-read --allow-net --allow-run --unstable src/server.ts resources/valid/simple.json
   ```
 
 - Run the client with
 
   ```bash
-  export TASKMASTER_TCP_PORT=9000 && deno run --allow-env --allow-net src/client.ts
+  TASKMASTER_TCP_PORT=9000 deno run --allow-env --allow-net --unstable src/client.ts
   ```
 
 ## Architecture
