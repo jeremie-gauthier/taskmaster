@@ -30,7 +30,6 @@ export default class TCPListener {
       }
       TCPListener.instance = new TCPListener(port, options);
     }
-
     return TCPListener.instance;
   }
 
@@ -45,8 +44,12 @@ export default class TCPListener {
   };
 
   private removeConn = (conn: Deno.Conn) => {
-    conn.close();
-    delete this.connections[conn.rid];
+    try {
+      conn.close();
+      delete this.connections[conn.rid];
+    } catch (_error) {
+      // ignore;
+    }
   };
 
   async handleIncomingConn(onConnect: OnConnectCallback) {
@@ -82,11 +85,15 @@ export default class TCPListener {
   }
 
   async closeAll() {
-    const conns = Object.values(this.connections);
-    const promiseRmConns = conns.map(async ({ conn, TCPMsg }) => {
-      await TCPMsg.write("[*] Daemon has exited", { connected: false });
-      this.removeConn(conn);
-    });
-    await Promise.all(promiseRmConns);
+    try {
+      const conns = Object.values(this.connections);
+      const promiseRmConns = conns.map(async ({ conn, TCPMsg }) => {
+        await TCPMsg.write("[*] Daemon has exited", { connected: false });
+        this.removeConn(conn);
+      });
+      await Promise.all(promiseRmConns);
+    } catch (_error) {
+      // ignore
+    }
   }
 }
