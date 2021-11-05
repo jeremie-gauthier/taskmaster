@@ -145,8 +145,13 @@ export default class Container {
         const hasGroup = !isEmpty(group);
         const isNewProg = isNone(oldPrograms[newProgName]) && !hasGroup;
 
+        const newConfigWithDefaults = {
+          ...Process.DEFAULT_CONFIG,
+          ...newProgConfig,
+        };
+
         if (isNewProg) {
-          this.spawnProc(newProgName, newProgConfig);
+          this.spawnProc(newProgName, newConfigWithDefaults);
         } else {
           let oldProgConfig = {} as ProcessConfig;
 
@@ -155,11 +160,6 @@ export default class Container {
           } else {
             oldProgConfig = oldPrograms[newProgName]?.config;
           }
-
-          const newConfigWithDefaults = {
-            ...Process.DEFAULT_CONFIG,
-            ...newProgConfig,
-          };
 
           if (this.progsDiff(newConfigWithDefaults, oldProgConfig)) {
             this.patch(newProgName, newConfigWithDefaults);
