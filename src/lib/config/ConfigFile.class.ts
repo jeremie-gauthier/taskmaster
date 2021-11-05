@@ -51,9 +51,12 @@ export default class ConfigFile {
           );
         }
 
-        if (progConfig.numProcs && isNaN(progConfig.numProcs)) {
+        if (
+          progConfig.numProcs &&
+          (isNaN(progConfig.numProcs) || progConfig.numProcs > 30)
+        ) {
           throw new Error(
-            `Error program ${progName} does not specify a number in section 'programs:${progName}:numProcs' (file: '${this.pathname}')`,
+            `Error program ${progName} does not specify a number or defines too many subprocesses in section 'programs:${progName}:numProcs' (file: '${this.pathname}')`,
           );
         }
 
@@ -121,6 +124,17 @@ export default class ConfigFile {
             `Error program ${progName} does not specify a valid number in section 'programs:${progName}:stopTime' (file: '${this.pathname}')`,
           );
         }
+      }
+
+      const programsKeys = Object.keys(programs);
+      const programsNumProcs = programsKeys.reduce((acc, progName) => {
+        const progConfig = programs[progName];
+        return acc + (progConfig.numProcs ?? 1);
+      }, 0);
+      if (programsNumProcs > 100) {
+        throw new Error(
+          `Error too many subprocesses from all sources (${programsNumProcs}) (max: 100) in configuration (file: '${this.pathname}')`,
+        );
       }
     };
 
