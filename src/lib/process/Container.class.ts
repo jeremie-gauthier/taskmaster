@@ -129,16 +129,11 @@ export default class Container {
       // compare old prog name with new entries
       //  to know which ones need to be removed
       for (const [oldProgName] of oldProgramsEntries) {
-        if (isPartOfAGroup(oldProgName)) {
-          const progName = oldProgName.split(":")[0];
+        const progName = isPartOfAGroup(oldProgName)
+          ? oldProgName.split(":")[0]
+          : oldProgName;
 
-          if (isNone(newPrograms[progName])) {
-            this.remove(progName);
-          }
-          continue;
-        }
-
-        if (isNone(newPrograms[oldProgName])) {
+        if (isNone(newPrograms[progName])) {
           this.remove(oldProgName);
         }
       }
@@ -258,6 +253,7 @@ export default class Container {
 
   private remove(processName: string) {
     const process = this.getProcess(processName);
+
     if (process) {
       process.stop();
       Logger.getInstance().info(
