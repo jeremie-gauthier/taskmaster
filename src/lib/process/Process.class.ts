@@ -24,6 +24,13 @@ export default class Process {
   private _lastTimeEvent: Date | null = null;
   private _handle: Deno.Process<Deno.RunOptions> | null = null;
   private stoppedByUser = false;
+  private _fds: {
+    stdout: Deno.File | null;
+    stderr: Deno.File | null;
+  } = {
+    stdout: null,
+    stderr: null,
+  };
 
   static DEFAULT_CONFIG: Omit<ProcessConfig, "cmd"> = {
     numProcs: 1,
@@ -85,6 +92,7 @@ export default class Process {
       this._lastTimeEvent = new Date();
       if (this.config.stdout) {
         Deno.open(this.config.stdout, FILE_OPTIONS).then((outFile) => {
+          this._fds.stdout = outFile;
           Logger.getInstance().info(
             `Process [${this.name}] stdout redirected to ${this.config.stdout}`,
           );
@@ -98,6 +106,7 @@ export default class Process {
       }
       if (this.config.stderr) {
         Deno.open(this.config.stderr, FILE_OPTIONS).then((errFile) => {
+          this._fds.stderr = errFile;
           Logger.getInstance().info(
             `Process [${this.name}] stderr redirected to ${this.config.stderr}`,
           );
@@ -112,6 +121,14 @@ export default class Process {
     } else {
       this._lastTimeEvent = new Date();
       this._status = "STOPPED";
+      if (this._fds.stdout) {
+        Deno.close(this._fds.stdout.rid);
+        this._fds.stdout = null;
+      }
+      if (this._fds.stderr) {
+        Deno.close(this._fds.stderr.rid);
+        this._fds.stderr = null;
+      }
     }
   }
 
