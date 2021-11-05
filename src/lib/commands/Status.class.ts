@@ -51,7 +51,7 @@ export default class Status extends Command {
     }
 
     return `${name}${padName}${status}\t\t${
-      lastTimeEvent ? Status.STOP_TIME_FMT(lastTimeEvent) : "unknown"
+      lastTimeEvent ? Status.STOP_TIME_FMT(lastTimeEvent) : "Not started"
     }`;
   }
 
