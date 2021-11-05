@@ -23,6 +23,7 @@ export default class Process {
   private _startRetries = 0;
   private _lastTimeEvent: Date | null = null;
   private _handle: Deno.Process<Deno.RunOptions> | null = null;
+  private stoppedByUser = false;
 
   static DEFAULT_CONFIG: Omit<ProcessConfig, "cmd"> = {
     numProcs: 1,
@@ -204,6 +205,10 @@ export default class Process {
       Logger.getInstance().info(
         `Process [${this.name}] received signal ${sigName ?? signal}.`,
       );
+    }
+
+    if (this.stoppedByUser) {
+      this.stoppedByUser = false;
       return `${this.name}: stopped`;
     }
 
@@ -269,6 +274,7 @@ export default class Process {
     ) {
       return `${this.name}: ERROR (not running)`;
     }
+    this.stoppedByUser = true;
 
     Logger.getInstance().info(`Stopping [${this.name}]...`);
 
