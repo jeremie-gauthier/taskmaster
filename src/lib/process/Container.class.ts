@@ -197,7 +197,9 @@ export default class Container {
       "umask",
       "workingDir",
     ];
-    return RELOADABLE_KEYS.some((key) => pc1[key] !== pc2[key]);
+    return RELOADABLE_KEYS.some((key) =>
+      JSON.stringify(pc1[key]) !== JSON.stringify(pc2[key])
+    );
   }
 
   private progsDiff(pc1: ProcessConfig, pc2: ProcessConfig) {
