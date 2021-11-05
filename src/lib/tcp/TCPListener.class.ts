@@ -14,11 +14,24 @@ export default class TCPListener {
   };
   private listener: Deno.Listener;
 
-  constructor(port: number, options?: Partial<TCPListenerOptions>) {
+  private static instance: TCPListener;
+
+  private constructor(port: number, options?: Partial<TCPListenerOptions>) {
     this.options = { ...this.options, ...options };
     this.listener = Deno.listen({ port });
     this.connections = {};
     console.info(`[*] Listening on 0.0.0.0:${port}`);
+  }
+
+  static getInstance(port?: number, options?: Partial<TCPListenerOptions>) {
+    if (!TCPListener.instance) {
+      if (!port) {
+        throw Error("[-] A port is required to start listening.");
+      }
+      TCPListener.instance = new TCPListener(port, options);
+    }
+
+    return TCPListener.instance;
   }
 
   private get activeConns() {

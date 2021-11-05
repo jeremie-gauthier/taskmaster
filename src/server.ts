@@ -27,7 +27,12 @@ const handleConn = async (TCPMsg: TCPMessage) => {
 const readFromConn = async (TCPMsg: TCPMessage) => {
   const jsonMessages = TCPMsg.iterRead();
 
-  for await (const { msg } of jsonMessages) {
+  for await (const jsonMessage of jsonMessages) {
+    if (!jsonMessage) {
+      continue;
+    }
+
+    const { msg } = jsonMessage;
     const [cmd, ...args] = msg.split(/\s+/);
 
     const Command = matchCommand(cmd);
@@ -71,7 +76,7 @@ const readFromConn = async (TCPMsg: TCPMessage) => {
 
     signal.on(SignalCode["HUP"], reloadConfig);
 
-    const listener = new TCPListener(TCP_PORT);
+    const listener = TCPListener.getInstance(TCP_PORT);
     await listener.handleIncomingConn(handleConn);
 
     await removeServerPID();
