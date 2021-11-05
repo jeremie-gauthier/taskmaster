@@ -83,14 +83,30 @@ export default class Process {
       this._status = "STARTING";
       this._lastTimeEvent = new Date();
       if (this.config.stdout) {
-        Deno.open(this.config.stdout, FILE_OPTIONS).then((outFile) =>
-          copy(handle.stdout!, outFile)
-        );
+        Deno.open(this.config.stdout, FILE_OPTIONS).then((outFile) => {
+          Logger.getInstance().info(
+            `Process [${this.name}] stdout redirected to ${this.config.stdout}`,
+          );
+          copy(handle.stdout!, outFile);
+        })
+          .catch((err) => {
+            Logger.getInstance().error(
+              `Process [${this.name}] stdout cannot be redirected (${err.message})`,
+            );
+          });
       }
       if (this.config.stderr) {
-        Deno.open(this.config.stderr, FILE_OPTIONS).then((errFile) =>
-          copy(handle.stderr!, errFile)
-        );
+        Deno.open(this.config.stderr, FILE_OPTIONS).then((errFile) => {
+          Logger.getInstance().info(
+            `Process [${this.name}] stderr redirected to ${this.config.stderr}`,
+          );
+          copy(handle.stderr!, errFile);
+        })
+          .catch((err) => {
+            Logger.getInstance().error(
+              `Process [${this.name}] stderr cannot be redirected (${err.message})`,
+            );
+          });
       }
     } else {
       this._lastTimeEvent = new Date();
