@@ -166,7 +166,7 @@ export default class Process {
         if (this.isUnexpectedExitCode(exitCode)) {
           return this.start({});
         }
-        return new Promise((resolve) => resolve(`${this.status}`));
+        return new Promise((resolve) => resolve(`${this.name}: started`));
     }
 
     Logger.getInstance().error(
