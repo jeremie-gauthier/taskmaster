@@ -1,4 +1,4 @@
-import { isEmpty, isNull, isUndefined } from "../utils/index.ts";
+import { isEmpty, isUndefined } from "../utils/index.ts";
 
 type Payload = Record<string, unknown>;
 
@@ -10,7 +10,7 @@ export default class TCPMessage {
   private conn: Deno.Conn;
   private static Encoder = new TextEncoder();
   private static Decoder = new TextDecoder();
-  private static BUFFER_SIZE = 1024;
+  private static BUFFER_SIZE = 4096;
 
   constructor(conn: Deno.Conn) {
     this.conn = conn;
@@ -29,15 +29,31 @@ export default class TCPMessage {
     }
   }
 
+  private async getTCPMessage() {
+    const buffer = new Uint8Array(TCPMessage.BUFFER_SIZE);
+    let nBytesRead = await this.conn.read(buffer);
+    let message = TCPMessage.Decoder.decode(buffer).substr(
+      0,
+      nBytesRead ?? 0,
+    );
+
+    while (nBytesRead && nBytesRead === TCPMessage.BUFFER_SIZE) {
+      nBytesRead = await Promise.race([
+        this.conn.read(buffer),
+        new Promise<number>((resolve) => {
+          setTimeout(() => resolve(0), 100);
+        }),
+      ]);
+      const rawMessage = TCPMessage.Decoder.decode(buffer);
+      message = `${message}${rawMessage.substr(0, nBytesRead ?? 0)}`;
+    }
+
+    return message;
+  }
+
   async read() {
     try {
-      const buffer = new Uint8Array(TCPMessage.BUFFER_SIZE);
-      const nBytesRead = await this.conn.read(buffer);
-      if (isNull(nBytesRead) || nBytesRead === 0) {
-        return null;
-      }
-      const rawMessage = TCPMessage.Decoder.decode(buffer);
-      const message = rawMessage.substr(0, nBytesRead ?? 0);
+      const message = await this.getTCPMessage();
       return JSON.parse(message) as JSONMessage;
     } catch (_error) {
       console.error(`[-] Cannot read TCP message (Connection reset by peer)`);
@@ -46,18 +62,9 @@ export default class TCPMessage {
   }
 
   async *iterRead(): AsyncIterableIterator<JSONMessage> {
-    const buffer = new Uint8Array(TCPMessage.BUFFER_SIZE);
-
     while (true) {
       try {
-        const nBytesRead = await this.conn.read(buffer);
-        if (isNull(nBytesRead)) {
-          break;
-        } else if (nBytesRead === 0) {
-          continue;
-        }
-        const rawMessage = TCPMessage.Decoder.decode(buffer);
-        const message = rawMessage.substr(0, nBytesRead ?? 0);
+        const message = await this.getTCPMessage();
         yield JSON.parse(message);
       } catch (_error) {
         console.error(`[-] Cannot read TCP message (Connection reset by peer)`);
