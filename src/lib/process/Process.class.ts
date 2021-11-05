@@ -257,7 +257,11 @@ export default class Process {
 
     // if SIGCHLD not receive in the meanwhile, then force kill subprocess
     const tid = setTimeout(() => {
-      Logger.getInstance().info(`Force kill [${this.name}].`);
+      Logger.getInstance().info(
+        `Process [${this.name}] failed to quit with SIG${this.config
+          .stopSignal ??
+          "TERM"}. Sending SIGKILL...`,
+      );
       this.handle?.kill(SignalCode["KILL"]);
       this.handle = null;
     }, stopTimeMs);
@@ -278,6 +282,10 @@ export default class Process {
 
     // await for the SIGCHLD signal to be received
     await signal.once(sigChild, () => {
+      Logger.getInstance().info(
+        `Process [${this.name}] stopped with SIG${this.config.stopSignal ??
+          "TERM"}.`,
+      );
       this.handle = null;
       clearTimeout(tid);
     });
