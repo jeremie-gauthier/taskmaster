@@ -12,7 +12,8 @@
         "ENV": "production",
         "PORT": 99999
       },
-      "numProcs": 2
+      "exitCodes": [0],
+      "numProcs": 1
     }
   }
 }
