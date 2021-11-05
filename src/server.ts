@@ -49,30 +49,34 @@ const readFromConn = async (TCPMsg: TCPMessage) => {
 };
 
 (async () => {
-  if (Deno.args.length !== 1) {
-    console.error("usage: taskmaterd <config>");
+  try {
+    if (Deno.args.length !== 1) {
+      console.error("usage: taskmaterd <config>");
+      return 1;
+    }
+
+    const TCP_PORT = getTcpPort();
+    if (isNull(TCP_PORT)) return 1;
+
+    writeServerPID();
+
+    signal.once(SignalCode["INT"], quitServer);
+    signal.once(SignalCode["QUIT"], quitServer);
+    signal.once(SignalCode["TERM"], quitServer);
+
+    const pathname = Deno.args[0];
+    const configFile = ConfigFile.getInstance(pathname);
+    await configFile.loadConfigFile();
+    await Processes.getInstance().buildFromConfigFile();
+
+    signal.on(SignalCode["HUP"], reloadConfig);
+
+    const listener = new TCPListener(TCP_PORT);
+    await listener.handleIncomingConn(handleConn);
+
+    await removeServerPID();
+    return 0;
+  } catch (_error) {
     return 1;
   }
-
-  const TCP_PORT = getTcpPort();
-  if (isNull(TCP_PORT)) return 1;
-
-  writeServerPID();
-
-  signal.once(SignalCode["INT"], quitServer);
-  signal.once(SignalCode["QUIT"], quitServer);
-  signal.once(SignalCode["TERM"], quitServer);
-
-  const pathname = Deno.args[0];
-  const configFile = ConfigFile.getInstance(pathname);
-  await configFile.loadConfigFile();
-  await Processes.getInstance().buildFromConfigFile();
-
-  signal.on(SignalCode["HUP"], reloadConfig);
-
-  const listener = new TCPListener(TCP_PORT);
-  await listener.handleIncomingConn(handleConn);
-
-  await removeServerPID();
-  return 0;
 })();
