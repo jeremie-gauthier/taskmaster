@@ -242,14 +242,15 @@ export default class Container {
           };
         }
       } else {
-        Logger.getInstance().info(
-          `Patching the configuration of ${processName}.`,
-        );
         this.processes[processName].config = {
           ...currentConfig,
           ...newProcessConfig,
         };
       }
+
+      Logger.getInstance().info(
+        `Patching the configuration of ${processName}.`,
+      );
     }
   }
 
