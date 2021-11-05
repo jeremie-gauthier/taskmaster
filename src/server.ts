@@ -68,6 +68,8 @@ const readFromConn = async (TCPMsg: TCPMessage) => {
     signal.once(SignalCode["INT"], quitServer);
     signal.once(SignalCode["QUIT"], quitServer);
     signal.once(SignalCode["TERM"], quitServer);
+    signal.once(SignalCode["USR1"], quitServer);
+    signal.once(SignalCode["USR2"], quitServer);
 
     const pathname = Deno.args[0];
     const configFile = ConfigFile.getInstance(pathname);
