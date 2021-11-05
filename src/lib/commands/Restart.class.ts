@@ -16,11 +16,15 @@ export default class Restart extends Command {
     for (const arg of this.args) {
       const currentProcess = Container.getInstance().getProcess(arg);
 
-      const stopRes = currentProcess.stop();
-      allResponses.push(stopRes);
+      if (currentProcess) {
+        const stopRes = await currentProcess.stop();
+        allResponses.push(stopRes);
 
-      const startRes = await currentProcess.start({ commandFromUser: true });
-      allResponses.push(startRes);
+        const startRes = await currentProcess.start({ commandFromUser: true });
+        allResponses.push(startRes);
+      } else {
+        allResponses.push(`${arg}: not found`);
+      }
     }
     return allResponses.join("\n");
   }

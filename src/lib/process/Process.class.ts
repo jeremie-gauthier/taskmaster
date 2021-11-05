@@ -229,7 +229,7 @@ export default class Process {
     return `${this.name}: started`;
   }
 
-  stop() {
+  async stop() {
     if (
       ["FATAL", "EXITED", "STOPPED"].includes(this.status) || !this.handle
     ) {
@@ -250,12 +250,6 @@ export default class Process {
       this.handle = null;
     }, stopTimeMs);
 
-    // await for the SIGCHLD signal to be received
-    signal.once(sigChild, () => {
-      this.handle = null;
-      clearTimeout(tid);
-    });
-
     // Send the stop signal to the subprocess, it should respond with a SIGCHLD
     const signo = SignalCode[this.config.stopSignal ?? "TERM"];
     try {
@@ -269,6 +263,12 @@ export default class Process {
         return `${this.name}: ERROR (not running)`;
       }
     }
+
+    // await for the SIGCHLD signal to be received
+    await signal.once(sigChild, () => {
+      this.handle = null;
+      clearTimeout(tid);
+    });
 
     Logger.getInstance().info(`Process [${this.name}] stopped by user.`);
     return `${this.name}: stopped`;

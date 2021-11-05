@@ -24,14 +24,23 @@ export const removeServerPID = () => {
 };
 
 export const quitServer = async () => {
-  const listener = TCPListener.getInstance();
-  const StopCommand = new Stop(["all"]);
-  await Promise.all([
-    StopCommand.exec(),
-    removeServerPID(),
-    listener.closeAll(),
-  ]);
-  Logger.close();
+  try {
+    const listener = TCPListener.getInstance();
+    await listener.closeAll();
+  } catch (_error) {
+    // ignore
+  }
+
+  try {
+    const StopCommand = new Stop(["all"]);
+    await Promise.all([
+      StopCommand.exec(),
+      removeServerPID(),
+    ]);
+    Logger.close();
+  } catch (_error) {
+    // ignore
+  }
   Deno.exit(0);
 };
 
