@@ -150,10 +150,11 @@ export default class Process {
         if (this.isUnexpectedExitCode(exitCode)) {
           return this.start({});
         }
+        return new Promise((resolve) => resolve(`${this.status}`));
     }
 
     Logger.getInstance().error(
-      `No retry due to "never" option in configuration file`,
+      `Process [${this.name}] cannot retry due to "never" option in configuration file`,
     );
     let exitMsg = `${this.status}`;
     // default and never case are same process
@@ -166,12 +167,16 @@ export default class Process {
   };
 
   private onProcessExit = (
-    { success, code, signal }: Deno.ProcessStatus,
+    { code, signal }: Deno.ProcessStatus,
     startupProcess: boolean,
   ) => {
     this._lastTimeEvent = new Date();
     this.handle = null;
-    this._status = success ? "EXITED" : "FATAL";
+    if (this.config.exitCodes.includes(code)) {
+      this._status = "EXITED";
+    } else {
+      this._status = "FATAL";
+    }
 
     if (signal) {
       return `${this.name}: stopped`;
