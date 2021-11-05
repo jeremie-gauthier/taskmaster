@@ -152,6 +152,9 @@ export default class Process {
         }
     }
 
+    Logger.getInstance().error(
+      `No retry due to "never" option in configuration file`,
+    );
     let exitMsg = `${this.status}`;
     // default and never case are same process
     switch (this.status) {
@@ -196,7 +199,7 @@ export default class Process {
     const canRetry = this._startRetries <= this.config.startRetries;
     if (!canRetry) {
       this._status = "FATAL";
-      Logger.getInstance().info(
+      Logger.getInstance().error(
         `Process [${this.name}] too many retries. Stop retrying.`,
       );
       return `${this.name}: ERROR (spawn error)`;
