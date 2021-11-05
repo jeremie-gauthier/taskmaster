@@ -222,6 +222,7 @@ export default class Process {
 
     if (isBackOff) {
       this._status = "BACKOFF";
+      this._handle = null;
       Logger.getInstance().info(`Process [${this.name}] exited too soon`);
       return this.autoRestart({ exitCode, startupProcess });
     }
