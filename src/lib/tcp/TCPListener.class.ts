@@ -71,7 +71,7 @@ export default class TCPListener {
   async closeAll() {
     const conns = Object.values(this.connections);
     const promiseRmConns = conns.map(async ({ conn, TCPMsg }) => {
-      await TCPMsg.write("[*] Daemon has exitted", { connected: false });
+      await TCPMsg.write("[*] Daemon has exited", { connected: false });
       this.removeConn(conn);
     });
     await Promise.all(promiseRmConns);

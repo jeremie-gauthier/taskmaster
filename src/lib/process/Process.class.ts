@@ -175,7 +175,7 @@ export default class Process {
     }
 
     Logger.getInstance().info(
-      `Process [${this.name}] exitted (code: ${code}).`,
+      `Process [${this.name}] exited (code: ${code}).`,
     );
     return this.autoRestart({ exitCode: code, startupProcess });
   };
