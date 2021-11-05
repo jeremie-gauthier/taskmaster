@@ -194,13 +194,19 @@ export default class Process {
       this._status = "FATAL";
     }
 
-    if (signal) {
-      return `${this.name}: stopped`;
-    }
-
     Logger.getInstance().info(
       `Process [${this.name}] exited (code: ${code}).`,
     );
+
+    if (signal) {
+      const sigName = signal >= 1 ? Object.keys(SignalCode)[signal - 1] : null;
+
+      Logger.getInstance().info(
+        `Process [${this.name}] received signal ${sigName ?? signal}.`,
+      );
+      return `${this.name}: stopped`;
+    }
+
     return this.autoRestart({ exitCode: code, startupProcess });
   };
 
