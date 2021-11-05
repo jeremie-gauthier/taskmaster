@@ -180,7 +180,7 @@ export default class Container {
       await quitServer();
     }
 
-    Logger.getInstance().info(
+    Logger.getInstance().debug(
       `New configuration loaded successfully:\n${
         JSON.stringify(this.processes, null, 4)
       }`,

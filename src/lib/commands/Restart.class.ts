@@ -1,3 +1,4 @@
+import Logger from "../logger/Logger.class.ts";
 import Container from "../process/Container.class.ts";
 import { isEmpty } from "../utils/index.ts";
 import Command from "./Command.class.ts";
@@ -17,6 +18,7 @@ export default class Restart extends Command {
       const currentProcess = Container.getInstance().getProcess(arg);
 
       if (currentProcess) {
+        Logger.getInstance().info(`Process [${arg}] restarting...`);
         const stopRes = await currentProcess.stop();
         allResponses.push(stopRes);
 

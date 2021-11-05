@@ -196,6 +196,9 @@ export default class Process {
     const canRetry = this._startRetries <= this.config.startRetries;
     if (!canRetry) {
       this._status = "FATAL";
+      Logger.getInstance().info(
+        `Process [${this.name}] too many retries. Stop retrying.`,
+      );
       return `${this.name}: ERROR (spawn error)`;
     }
 

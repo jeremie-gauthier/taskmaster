@@ -69,6 +69,10 @@ export default class Logger {
     return this.write(`[ INFO ] - ${msg}`);
   }
 
+  debug(msg: string) {
+    return this.write(`[ DEBUG ] - ${msg}`);
+  }
+
   error(msg: string) {
     return this.write(`[ ERROR ] - ${msg}`);
   }
