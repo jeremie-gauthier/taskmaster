@@ -16,26 +16,6 @@ deno upgrade --version 1.13.2
 
 You can run taskmaster locally or with Docker, pick one of the following methods
 
-### With Docker
-
-1. Build the image
-
-   ```bash
-   docker-compose build
-   ```
-
-2. Run the image
-
-   ```bash
-   docker-compose run --service-ports taskmasterd resources/valid/simple.json
-   ```
-
-To remove old images that were outdated by a new build, run:
-
-```bash
-docker image rm -f `docker images | grep '^<none>' | tr -s ' ' | cut -d ' ' -f 3`
-```
-
 ### Locally
 
 - Run the server with
