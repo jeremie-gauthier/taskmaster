@@ -3,3 +3,4 @@ Cargo*
 logs
 resources/supervisord*
 .vscode
+taskmasterd.pid
